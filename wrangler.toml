@@ -7,7 +7,12 @@ routes = [
 usage_model = "unbound"
 compatibility_date = "2022-06-21"
 
+[[r2_buckets]]
+binding = 'R2_GEOIP'
+bucket_name = 'geoip'
+
 [vars]
 LATEST_TSTAMP = "1655223903366"
 LATEST_VCODE = "19"
+GEOIP_PATH = "2022/1655832359"
 STORE_URL = "https://dist.rethinkdns.com/"

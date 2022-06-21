@@ -49,6 +49,29 @@ function checkForBlocklistsUpdates(params, latestTimestamp) {
   return response
 }
 
+// geoipPath is of form "2022/1655832359"
+function checkForGeoipUpdates(params, geoipPath) {
+  const res = {
+    "version":"1",
+    "update":"false",
+    "latest":geoipPath,
+  }
+
+  if (params) {
+    // encodeURIComponent("2022/1655832359") -> "2022%2F1655832359"
+    const rcvdPath = decodeURIComponent(params.get("path")) || "0/0"
+    res.update = shouldUpdateGeoip(geoipPath, rcvdPath)
+  }
+
+  const resJson = JSON.stringify(res, /*replacer*/null, /*space*/2)
+
+  const response = new Response(resJson, { headers: jsonHeader })
+
+  allowCors(response.headers)
+
+  return response
+}
+
 async function handleRequest(request, env) {
 
   // TODO: handle preflight requests
@@ -66,10 +89,13 @@ async function handleRequest(request, env) {
     return checkForAppUpdates(params, env.LATEST_VCODE)
   } else if (path === "/update/blocklists") {
     return checkForBlocklistsUpdates(params, env.LATEST_TSTAMP)
+  } else if (path === "/update/geoip") {
+    return checkForGeoipUpdates(params, env.GEOIP_PATH)
   }
 
   const furl = env.STORE_URL + "blocklists/"
   const aurl = env.STORE_URL + "androidapp/"
+  const gurl = "r2:" // no double forward-slash // unlike http
   const paths = path.split("/")
 
   let type = (paths && paths.length >= 1) ? paths[1] : ""
@@ -77,12 +103,25 @@ async function handleRequest(request, env) {
 
   const down = type && type.length > 0
   if (down && (!version || version.length == 0 || isNaN(version))) {
-    version = (type === "app") ? env.LATEST_VCODE : env.LATEST_TSTAMP
+    if (type === "app") {
+      version = env.LATEST_VCODE
+    } else if (type === "geoip") {
+      version = env.GEOIP_PATH
+    } else { // either: blocklists, rank, trie, basicconfig, bloom
+      version = env.LATEST_TSTAMP
+    }
   }
 
   let ttl = 10800 // 60 * 60 * 3hr
   let contentType = "blob"
-  if (type === "app") {
+  if (type === "geoip") {
+    v6 = param.has("v6")
+    v4 = param.has("v4") || true
+    // r2:version/dbip.v6 where version is of form 2022/143432432
+    url = gurl + decodeURIComponent(version) + v6 ? "/dbip.v6" : "/dbip.v4"
+    filename = v6 ? "dbip.v6" : "dbip.v4"
+    ttl = 2592000 // 60 * 60 * 720hr
+  } else if (type === "app") {
     url = aurl + version + ".apk"
     filename = "rethinkdns" + version + ".apk"
   } else if (type === "blocklists") {
@@ -113,23 +152,19 @@ async function handleRequest(request, env) {
       // return err("no such path")
   }
 
-  const r1 = await fetch(url, {
-      // note: cacheTtlByStatus is enterprise-only
-      cf: { cacheTtl: ttl },
-    })
-
-  if (!r1 || !r1.ok) {
+  const res1 = doDownload(url, ttl, env.R2_GEOIP)
+  if (!res1 || !res1.ok) {
     return response502
   }
 
   // 1. Make the headers mutable by re-constructing the Response
-  // https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams#attaching_a_reader
+  // developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams#attaching_a_reader
   // 2. Stream the response to let cf evict this worker from memory, sooner.
-  // https://blog.cloudflare.com/workers-optimization-reduces-your-bill/
-  // https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams#attaching_a_reader
-  if (r1.body) {
-    // do not await on r1! see #2 above
-    const r2 = new Response(r1.body, r1)
+  // blog.cloudflare.com/workers-optimization-reduces-your-bill/
+  // developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams#attaching_a_reader
+  if (res1.body) {
+    // do not await on res1! see #2 above
+    const res2 = new Response(res1.body, res1)
     // TODO: remove aws headers
     // etag:"d1d8dd2aa848850d"
     // server:AmazonS3
@@ -138,13 +173,39 @@ async function handleRequest(request, env) {
     // x-amz-cf-pop:ORD51-C3
     // x-amz-server-side-encryption:AES256
     // x-cache:Hit from cloudfront
-    asAttachment(r2.headers, filename)
-    withContentType(r2.headers, contentType)
-    allowCors(r2.headers)
-    return r2
+    asAttachment(res2.headers, filename)
+    withContentType(res2.headers, contentType)
+    allowCors(res2.headers)
+    return res2
   }
 
   return response503
+}
+
+async function doDownload(url, ttl, r2geoip) {
+  let u = null;
+  try {
+    u = new URL(url)
+  } catch (ex) {
+    console.log("do-download: invalid url", url);
+  }
+
+  if (u && u.protocol === "r2:") {
+    // developers.cloudflare.com/r2/runtime-apis/#bucket-method-definitions
+    const r2obj = await r2geoip.head(url.pathname)
+    // developers.cloudflare.com/r2/runtime-apis/#r2object-definition
+    return (r2obj.size > 0) ?
+      new Response(r2obj.body) :
+      new Response(null, { status:500 })
+  } else if (u && u.protocol === "https:") {
+    return await fetch(url, {
+      // note: cacheTtlByStatus is enterprise-only
+      cf: { cacheTtl: ttl },
+    })
+  } else {
+    console.log("do-download: unsupported proto", url);
+    return null
+  }
 }
 
 function asAttachment(h, n) {
@@ -209,6 +270,21 @@ function shouldUpdateBlocklists(latest, current) {
   // client's tstamp invalid; course-correct.
   if (!isValidFileTimestamp(current)) return "true"
 
+  return (latest > current).toString()
+}
+
+function shouldUpdateGeoip(latest, current) {
+  try {
+    // ex: l_split -> ["2022", "1655832359"]
+    l_split = latest.split("/")
+    c_split = current.split("/")
+    latest = parseInt(l_split[1])
+    current = parseInt(c_split[1])
+  } catch (ex) {
+    // couldn't convert vcode to numbers, probably malformed
+    // inform the client to update to the latest vcode.
+    return "true"
+  }
   return (latest > current).toString()
 }
 

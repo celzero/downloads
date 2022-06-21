@@ -5,6 +5,7 @@ logs
 *.credentials
 *.v6
 *.v4
+*.python-version
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
