@@ -96,21 +96,7 @@ async function handleRequest(request, env) {
   const furl = env.STORE_URL + "blocklists/"
   const aurl = env.STORE_URL + "androidapp/"
   const gurl = "r2:" // no double forward-slash // unlike http
-  const paths = path.split("/")
-
-  let type = (paths && paths.length >= 1) ? paths[1] : ""
-  let version = (paths && paths.length >= 2) ? paths[2] : ""
-
-  const down = type && type.length > 0
-  if (down && (!version || version.length == 0 || isNaN(version))) {
-    if (type === "app") {
-      version = env.LATEST_VCODE
-    } else if (type === "geoip") {
-      version = env.GEOIP_PATH
-    } else { // either: blocklists, rank, trie, basicconfig, bloom
-      version = env.LATEST_TSTAMP
-    }
-  }
+  const [type, version] = determineIntent(path)
 
   let ttl = 10800 // 60 * 60 * 3hr
   let contentType = "blob"
@@ -118,7 +104,7 @@ async function handleRequest(request, env) {
     const v6 = params.has("v6")
     const v4 = params.has("v4") || true
     // r2:version/dbip.v6 where version is of form 2022/143432432
-    url = gurl + decodeURIComponent(version) + (v6 ? "/dbip.v6" : "/dbip.v4")
+    url = gurl + version + (v6 ? "/dbip.v6" : "/dbip.v4")
     filename = v6 ? "dbip.v6" : "dbip.v4"
     ttl = 2592000 // 60 * 60 * 720hr
   } else if (type === "app") {
@@ -181,6 +167,36 @@ async function handleRequest(request, env) {
 
   console.warn("download for", url, "failed, no body w res", res1)
   return response503
+}
+
+function determineIntent(path) {
+  let type = null
+  let version = null
+  if (!path || path.length <= 0) {
+    console.warn("intent: undetermined; zero path")
+    return [type, version]
+  }
+
+  const paths = path.split("/")
+  const p1 = (paths && paths.length >= 1) ? paths[1] : ""
+  const p2 = (p1 && paths.length >= 2) ? paths[2] : ""
+  const p3 = (p2 && paths.length >= 3) ? paths[3] : ""
+
+  if (p1 === "geoip") {
+    type = p1
+    version = (p2 && p3) ? (p2 + "/" + p3) : env.GEOIP_PATH
+  } else if (p1 === "app") {
+    type = p1
+    version = p2 || env.LATEST_VCODE
+  } else if (p1.length > 0) {
+    // one among: blocklists, rank, trie, basicconfig, bloom
+    type = p1
+    version = p2 || env.LATEST_TSTAMP
+  } else {
+    console.warn("intent: unknown; path not set", path)
+  }
+
+  return [type, version]
 }
 
 async function doDownload(url, ttl, r2geoip) {
