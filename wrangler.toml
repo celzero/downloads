@@ -1,11 +1,12 @@
-name = "download"
+name = "dl"
 main = "src/index.js"
 routes = [
-  "download.bravedns.com/*",
-  "download.rethinkdns.com/*",
+  "dl.bravedns.com/*",
+  "dl.rethinkdns.com/*",
 ]
 usage_model = "unbound"
 compatibility_date = "2022-06-21"
+workers_dev = true
 
 [[r2_buckets]]
 binding = 'R2_GEOIP'

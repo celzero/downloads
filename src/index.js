@@ -115,10 +115,10 @@ async function handleRequest(request, env) {
   let ttl = 10800 // 60 * 60 * 3hr
   let contentType = "blob"
   if (type === "geoip") {
-    v6 = param.has("v6")
-    v4 = param.has("v4") || true
+    const v6 = params.has("v6")
+    const v4 = params.has("v4") || true
     // r2:version/dbip.v6 where version is of form 2022/143432432
-    url = gurl + decodeURIComponent(version) + v6 ? "/dbip.v6" : "/dbip.v4"
+    url = gurl + decodeURIComponent(version) + (v6 ? "/dbip.v6" : "/dbip.v4")
     filename = v6 ? "dbip.v6" : "dbip.v4"
     ttl = 2592000 // 60 * 60 * 720hr
   } else if (type === "app") {
@@ -152,7 +152,7 @@ async function handleRequest(request, env) {
       // return err("no such path")
   }
 
-  const res1 = doDownload(url, ttl, env.R2_GEOIP)
+  const res1 = await doDownload(url, ttl, env.R2_GEOIP)
   if (!res1 || !res1.ok) {
     return response502
   }
@@ -179,31 +179,32 @@ async function handleRequest(request, env) {
     return res2
   }
 
+  console.warn("download for", url, "failed, no body w res", res1)
   return response503
 }
 
 async function doDownload(url, ttl, r2geoip) {
-  let u = null;
-  try {
-    u = new URL(url)
-  } catch (ex) {
-    console.log("do-download: invalid url", url);
-  }
-
-  if (u && u.protocol === "r2:") {
+  if (url && url.startsWith("r2:")) {
+    // remove the prefix r2:
+    const key = url.slice(url.indexOf(":") + 1)
     // developers.cloudflare.com/r2/runtime-apis/#bucket-method-definitions
-    const r2obj = await r2geoip.head(url.pathname)
+    const r2obj = await r2geoip.get(key)
     // developers.cloudflare.com/r2/runtime-apis/#r2object-definition
-    return (r2obj.size > 0) ?
-      new Response(r2obj.body) :
-      new Response(null, { status:500 })
-  } else if (u && u.protocol === "https:") {
+    const ok = (r2obj.size > 0)
+    if (ok) {
+      // console.debug("r2obj sz:", r2obj.size, " k:", r2obj.key, "v:", r2obj.version)
+      return new Response(r2obj.body)
+    } else {
+      console.warn("r2 size", r2obj.size, "not ok for", key)
+      return new Response(null, { status:500 })
+    }
+  } else if (url && url.startsWith("https:")) {
     return await fetch(url, {
       // note: cacheTtlByStatus is enterprise-only
       cf: { cacheTtl: ttl },
     })
   } else {
-    console.log("do-download: unsupported proto", url);
+    console.warn("do-download: unsupported proto", url);
     return null
   }
 }
@@ -276,11 +277,12 @@ function shouldUpdateBlocklists(latest, current) {
 function shouldUpdateGeoip(latest, current) {
   try {
     // ex: l_split -> ["2022", "1655832359"]
-    l_split = latest.split("/")
-    c_split = current.split("/")
+    const l_split = latest.split("/")
+    const c_split = current.split("/")
     latest = parseInt(l_split[1])
     current = parseInt(c_split[1])
   } catch (ex) {
+    console.warn("geoip ver", current, latest, "parse err", ex)
     // couldn't convert vcode to numbers, probably malformed
     // inform the client to update to the latest vcode.
     return "true"
