@@ -1,6 +1,10 @@
 # Logs
 logs
 *.log
+*.gz
+*.credentials
+*.v6
+*.v4
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

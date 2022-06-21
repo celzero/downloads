@@ -1,0 +1,13 @@
+name = "download"
+main = "src/index.js"
+routes = [
+  "download.bravedns.com/*",
+  "download.rethinkdns.com/*",
+]
+usage_model = "unbound"
+compatibility_date = "2022-06-21"
+
+[vars]
+LATEST_TSTAMP = "1655223903366"
+LATEST_VCODE = "19"
+STORE_URL = "https://dist.rethinkdns.com/"
