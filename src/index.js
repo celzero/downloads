@@ -3,6 +3,7 @@
 const jsonHeader = {"content-type": "application/json;charset=UTF-8"}
 const response502 = new Response(null, {status: 502})
 const response503 = new Response(null, {status: 503})
+const r2proto = "r2:"
 
 function checkForAppUpdates(params, latestVersionCode) {
   const res = {
@@ -95,8 +96,8 @@ async function handleRequest(request, env) {
 
   const furl = env.STORE_URL + "blocklists/"
   const aurl = env.STORE_URL + "androidapp/"
-  const gurl = "r2:" // no double forward-slash // unlike http
-  const [type, version] = determineIntent(path)
+  const gurl = r2proto // no double forward-slash // unlike http
+  const [type, version] = determineIntent(path, env)
 
   let ttl = 10800 // 60 * 60 * 3hr
   let contentType = "blob"
@@ -144,7 +145,6 @@ async function handleRequest(request, env) {
   }
 
   // 1. Make the headers mutable by re-constructing the Response
-  // developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams#attaching_a_reader
   // 2. Stream the response to let cf evict this worker from memory, sooner.
   // blog.cloudflare.com/workers-optimization-reduces-your-bill/
   // developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams#attaching_a_reader
@@ -169,7 +169,7 @@ async function handleRequest(request, env) {
   return response503
 }
 
-function determineIntent(path) {
+function determineIntent(path, env) {
   let type = null
   let version = null
   if (!path || path.length <= 0) {
@@ -200,8 +200,8 @@ function determineIntent(path) {
 }
 
 async function doDownload(url, ttl, r2geoip) {
-  if (url && url.startsWith("r2:")) {
-    // remove the prefix r2:
+  if (url && url.startsWith(r2proto)) {
+    // slice out the prefix r2: from url
     const key = url.slice(url.indexOf(":") + 1)
     // developers.cloudflare.com/r2/runtime-apis/#bucket-method-definitions
     const r2obj = await r2geoip.get(key)
@@ -308,7 +308,7 @@ function shouldUpdateGeoip(latest, current) {
 
 function isValidFileTimestamp(ts) {
   try {
-    // re: Date.now() https://stackoverflow.com/a/58491358
+    // re: Date.now() stackoverflow.com/a/58491358
     return ts <= Date.now()
   } catch (ex) {
     return false
