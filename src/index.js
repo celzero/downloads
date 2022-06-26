@@ -60,7 +60,7 @@ function checkForGeoipUpdates(params, geoipPath) {
 
   if (params) {
     // encodeURIComponent("2022/1655832359") -> "2022%2F1655832359"
-    const rcvdPath = decodeURIComponent(params.get("path")) || "0/0"
+    const rcvdPath = decodeURIComponent(params.get("path") || "0/0")
     res.update = shouldUpdateGeoip(geoipPath, rcvdPath)
   }
 
@@ -103,10 +103,16 @@ async function handleRequest(request, env) {
   let contentType = "blob"
   if (type === "geoip") {
     const v6 = params.has("v6")
-    const v4 = params.has("v4") || true
+    const v4 = params.has("v4")
+    const asn64 = params.has("asn")
     // r2:version/dbip.v6 where version is of form 2022/143432432
-    url = gurl + version + (v6 ? "/dbip.v6" : "/dbip.v4")
-    filename = v6 ? "dbip.v6" : "dbip.v4"
+    if (asn64) {
+      url = gurl + version + "/asn.v64"
+      filename = "asn.v64"
+    } else {
+      url = gurl + version + (v6 ? "/dbip.v6" : "/dbip.v4")
+      filename = v6 ? "dbip.v6" : "dbip.v4"
+    }
     ttl = 2592000 // 60 * 60 * 720hr
   } else if (type === "app") {
     url = aurl + version + ".apk"
