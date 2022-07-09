@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
-
+#!/usr/bin/env python
+# exec env $(cat ./.cf.credentials | xargs) ./dbip-upload.py
 import boto3
 import os
 import pprint
 from botocore.client import Config
-from datetime import datetime
+from datetime import datetime,timezone
 
 account_id = os.getenv('CF_ID')
 access_key_id = os.getenv('CF_KEY')
@@ -16,8 +16,12 @@ bkt = u'geoip'
 db4 = u'dbip.v4'
 db6 = u'dbip.v6'
 asn64 = u'asn.v64'
-# ex: '2022/1655830807'
-dirent = datetime.now().strftime("%Y/%s")
+# ex: 1655830807.1231544
+utcnow = datetime.now(timezone.utc)
+tstamp = utcnow.timestamp()
+year = utcnow.year
+# ex: '2022/1655830807123'
+dirent = str(year) + '/' + str(round(tstamp * 1000))
 path_db4 = dirent + '/' + db4
 path_db6 = dirent + '/' + db6
 path_asn64 = dirent + '/' + asn64
@@ -40,8 +44,8 @@ cl.upload_file(Bucket=bkt, Key=path_db4, Filename=db4)
 cl.upload_file(Bucket=bkt, Key=path_db6, Filename=db6)
 cl.upload_file(Bucket=bkt, Key=path_db6, Filename=asn64)
 
-print("url:", endpoint)
-print("bkt:", bkt, "ver:", dirent)
+print("url:", endpoint, "ver:", tstamp)
+print("bkt:", bkt, "p:", dirent)
 print("db4:", path_db4)
 print("db6:", path_db6)
 print("asn64:", path_asn64)
