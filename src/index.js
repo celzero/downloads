@@ -50,18 +50,19 @@ function checkForBlocklistsUpdates(params, latestTimestamp) {
   return response
 }
 
-// geoipPath is of form "2022/1655832359"
-function checkForGeoipUpdates(params, geoipPath) {
+// geoipver is a unix timestamp "1655832359111"
+function checkForGeoipUpdates(params, geoipver) {
   const res = {
     "version":"1",
     "update":"false",
-    "latest":geoipPath,
+    "latest":geoipver,
   }
 
   if (params) {
-    // encodeURIComponent("2022/1655832359") -> "2022%2F1655832359"
-    const rcvdPath = decodeURIComponent(params.get("path") || "0/0")
-    res.update = shouldUpdateGeoip(geoipPath, rcvdPath)
+    // rcvdPath = "1655832359111"
+    const rcvdPath = params.get("tstamp") || "0"
+    // r2PathOf may return null
+    res.update = shouldUpdateGeoip(r2PathOf(geoipver), r2PathOf(rcvdPath))
   }
 
   const resJson = JSON.stringify(res, /*replacer*/null, /*space*/2)
@@ -91,12 +92,14 @@ async function handleRequest(request, env) {
   } else if (path === "/update/blocklists") {
     return checkForBlocklistsUpdates(params, env.LATEST_TSTAMP)
   } else if (path === "/update/geoip") {
-    return checkForGeoipUpdates(params, env.GEOIP_PATH)
+    return checkForGeoipUpdates(params, env.GEOIP_TSTAMP)
   }
 
   const furl = env.STORE_URL + "blocklists/"
   const aurl = env.STORE_URL + "androidapp/"
   const gurl = r2proto // no double forward-slash // unlike http
+  // type = ["geoip", "app", "blocklists", "basicconfig", "rank", trie"]
+  // version = usually a unix timestamp
   const [type, version] = determineIntent(path, env)
 
   let ttl = 10800 // 60 * 60 * 3hr
@@ -184,25 +187,35 @@ function determineIntent(path, env) {
   }
 
   const paths = path.split("/")
-  const p1 = (paths && paths.length >= 1) ? paths[1] : ""
-  const p2 = (p1 && paths.length >= 2) ? paths[2] : ""
-  const p3 = (p2 && paths.length >= 3) ? paths[3] : ""
+  const p1 = (paths && paths.length > 1) ? paths[1] : ""
+  const p2 = (p1 && paths.length > 2) ? paths[2] : ""
 
   if (p1 === "geoip") {
     type = p1
-    version = (p2 && p3) ? (p2 + "/" + p3) : env.GEOIP_PATH
+    version = r2PathOf(p2, env.GEOIP_TSTAMP)
   } else if (p1 === "app") {
     type = p1
     version = p2 || env.LATEST_VCODE
   } else if (p1.length > 0) {
     // one among: blocklists, rank, trie, basicconfig, bloom
     type = p1
-    version = p2 || env.LATEST_TSTAMP
+    version = r2PathOf(p2, env.LATEST_TSTAMP)
   } else {
     console.warn("intent: unknown; path not set", path)
   }
 
   return [type, version]
+}
+
+function r2PathOf(tstamp, defaultvalue) {
+    try {
+      const ver = parseInt(tstamp || defaultvalue)
+      const d = new Date(ver)
+      // r2path = "2022/1655832359111"
+      return d.getUTCFullYear() + "/" + ver
+    } catch(ex) {
+      return null
+    }
 }
 
 async function doDownload(url, ttl, r2geoip) {
@@ -297,6 +310,7 @@ function shouldUpdateBlocklists(latest, current) {
 }
 
 function shouldUpdateGeoip(latest, current) {
+  if (latest == null || current == null) return "true"
   try {
     // ex: l_split -> ["2022", "1655832359"]
     const l_split = latest.split("/")
