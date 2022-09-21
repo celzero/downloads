@@ -8,9 +8,9 @@ usage_model = "unbound"
 compatibility_date = "2022-06-21"
 workers_dev = true
 
-#[[r2_buckets]]
-#binding = 'R2_GEOIP'
-#bucket_name = 'geoip'
+[[r2_buckets]]
+binding = 'R2_GEOIP'
+bucket_name = 'geoip'
 
 [vars]
 LATEST_TSTAMP = "1655223903366"

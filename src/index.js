@@ -103,7 +103,7 @@ async function handleRequest(request, env) {
   const [type, version] = determineIntent(path, env)
 
   let ttl = 10800 // 60 * 60 * 3hr
-  let contentType = "blob"
+  let contentType = determineContentType(params)
   if (type === "geoip") {
     const v6 = params.has("v6")
     const v4 = params.has("v4")
@@ -120,6 +120,8 @@ async function handleRequest(request, env) {
   } else if (type === "app") {
     url = aurl + version + ".apk"
     filename = "rethinkdns" + version + ".apk"
+    // always blob, never compressed?
+    // contentType = "blob"
   } else if (type === "blocklists") {
     url = furl + version + "/filetag.json"
     filename = "filetag.json"
@@ -178,6 +180,11 @@ async function handleRequest(request, env) {
   return response503
 }
 
+function determineContentType(params) {
+  const compressed = params.get("compressed") != null
+  return (compressed) ? "compressable-blob" : "blob"
+}
+
 function determineIntent(path, env) {
   let type = null
   let version = null
@@ -218,6 +225,7 @@ function r2PathOf(tstamp, defaultvalue) {
     }
 }
 
+// ref: github.com/kotx/render/blob/0a841f6/src/index.ts
 async function doDownload(url, ttl, r2geoip) {
   if (url && url.startsWith(r2proto)) {
     // slice out the prefix r2: from url
@@ -253,6 +261,10 @@ function withContentType(h, typ) {
   if (!h || !typ) return
   if (typ === "blob") {
     h.set("content-type", "application/octet-stream")
+  } else if (typ === "compressable-blob") {
+    // cf does not compress octet-streams: archive.is/CDnBh
+    // but compresses application/wasm: archive.is/rT2pZ
+    h.set("content-type", "application/wasm")
   } else if (typ === "json") {
     h.set("content-type", "application/json;charset=UTF-8")
   }
