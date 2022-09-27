@@ -103,7 +103,10 @@ async function handleRequest(request, env) {
   const [type, version] = determineIntent(path, env)
 
   let ttl = 10800 // 60 * 60 * 3hr
+  // use built-in http compression as br / gz
   let contentType = determineContentType(params)
+  // explicitly compress contents as gz
+  const streamType = determineStreamType(params)
   if (type === "geoip") {
     const v6 = params.has("v6")
     const v4 = params.has("v4")
@@ -160,8 +163,9 @@ async function handleRequest(request, env) {
   // blog.cloudflare.com/workers-optimization-reduces-your-bill/
   // developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams#attaching_a_reader
   if (res1.body) {
+    const body = asStream(r1.body, streamType)
     // do not await on res1! see #2 above
-    const res2 = new Response(res1.body, res1)
+    const res2 = new Response(body, res1)
     // TODO: remove aws headers
     // etag:"d1d8dd2aa848850d"
     // server:AmazonS3
@@ -183,6 +187,11 @@ async function handleRequest(request, env) {
 function determineContentType(params) {
   const compressed = params.get("compressed") != null
   return (compressed) ? "compressable-blob" : "blob"
+}
+
+function determineStreamType(params) {
+  const compressed = params.get("gzipped") != null
+  return (compressed) ? "stream-gz" : ""
 }
 
 function determineIntent(path, env) {
@@ -250,6 +259,13 @@ async function doDownload(url, ttl, r2geoip) {
     console.warn("do-download: unsupported proto", url);
     return null
   }
+}
+
+function asStream(b, typ) {
+  if (typ === "stream-gz") {
+      return b.pipeThrough(new CompressionStream("gzip"))
+  }
+  return b
 }
 
 function asAttachment(h, n) {
