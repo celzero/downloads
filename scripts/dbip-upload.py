@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # exec env $(cat ./.cf.credentials | xargs) ./dbip-upload.py
+# asn.v64: iptoasn.com/data/ip2asn-combined.tsv.gz
 import boto3
 import os
 import pprint
@@ -12,7 +13,8 @@ secret_access_key = os.getenv('CF_SECRET')
 
 endpoint = f'https://{account_id}.r2.cloudflarestorage.com'
 
-bkt = u'geoip'
+bkt = u'rdns'
+pre = u'geoip'
 db4 = u'dbip.v4'
 db6 = u'dbip.v6'
 asn64 = u'asn.v64'
@@ -21,7 +23,7 @@ utcnow = datetime.now(timezone.utc)
 tstamp = utcnow.timestamp()
 year = utcnow.year
 # ex: '2022/1655830807123'
-dirent = str(year) + '/' + str(round(tstamp * 1000))
+dirent = str(pre) + '/' + str(year) + '/' + str(round(tstamp * 1000))
 path_db4 = dirent + '/' + db4
 path_db6 = dirent + '/' + db6
 path_asn64 = dirent + '/' + asn64
