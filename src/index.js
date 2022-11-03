@@ -6,23 +6,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import * as modup from "./update.js"
-import * as moddown from "./download.js"
+import * as modup from "./update.js";
+import * as moddown from "./download.js";
 // downloads powered by STORE_URL and/or R2 bindings
 
 async function handleRequest(request, env) {
-
   // TODO: handle preflight requests
   // developers.cloudflare.com/workers/examples/cors-header-proxy
-  const r = new URL(request.url)
+  const r = new URL(request.url);
 
-  const path = r.pathname
-  const params = r.searchParams
+  const path = r.pathname;
+  const params = r.searchParams;
 
   if (path.startsWith("/update")) {
-    return modup.handleUpdateRequest(params, path, env)
+    return modup.handleUpdateRequest(params, path, env);
   } else {
-    return moddown.handleDownloadRequest(params, path, env)
+    return moddown.handleDownloadRequest(params, path, env);
   }
 }
 
@@ -30,4 +29,4 @@ export default {
   async fetch(req, env, ctx) {
     return handleRequest(req, env);
   },
-}
+};

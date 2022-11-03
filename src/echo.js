@@ -7,26 +7,26 @@
  */
 
 export function echo(str) {
-    const res = {
-      "version":"1",
-      "echo": str
-    }
-  
-    const resJson = JSON.stringify(res, /*replacer*/null, /*space*/2)
-  
-    return new Response(resJson, { headers: jsonHeader })
-  }
+  const res = {
+    version: "1",
+    echo: str,
+  };
+
+  const resJson = JSON.stringify(res, /*replacer*/ null, /*space*/ 2);
+
+  return new Response(resJson, { headers: jsonHeader });
+}
 
 export function err(reason) {
-    const res = {
-      "version":"1",
-      "error": reason + "",
-    }
-  
-    const resJson = JSON.stringify(res, /*replacer*/null, /*space*/2)
-  
-    return new Response(resJson,{
-      headers: jsonHeader,
-      status: 500,
-    })
-  }
+  const res = {
+    version: "1",
+    error: reason + "",
+  };
+
+  const resJson = JSON.stringify(res, /*replacer*/ null, /*space*/ 2);
+
+  return new Response(resJson, {
+    headers: jsonHeader,
+    status: 500,
+  });
+}

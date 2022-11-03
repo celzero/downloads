@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2022 RethinkDNS and its authors.
  *
@@ -8,9 +7,9 @@
  */
 
 // use r2 with its http url or r2 bindings?
-export const r2Http = true
+export const r2Http = true;
 // no double forward-slash // unlike http
-export const r2proto = "r2:"
+export const r2proto = "r2:";
 
 // blocklists below this version are on s3, the rest on r2
 export const lastVersionOnS3 = 1666666666666; // Oct 25, 2022

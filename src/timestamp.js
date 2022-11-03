@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2022 RethinkDNS and its authors.
  *
@@ -8,22 +7,22 @@
  */
 
 export function isValidFileTimestamp(ts) {
-    try {
-      // re: Date.now() stackoverflow.com/a/58491358
-      return ts <= Date.now()
-    } catch (ex) {
-      return false
-    }
+  try {
+    // re: Date.now() stackoverflow.com/a/58491358
+    return ts <= Date.now();
+  } catch (ex) {
+    return false;
   }
-  
+}
+
 export function fullTimestampFrom(tstamp, defaultvalue) {
-    try {
-      const ver = parseInt(tstamp) || parseInt(defaultvalue)
-      const d = new Date(ver)
-      // r2path = "2022/1655832359111"
-      // keep in sync with serverless-dns/blocklists:upload.js
-      return d.getUTCFullYear() + "/" + ver
-    } catch(ex) {
-      return null
-    }
+  try {
+    const ver = parseInt(tstamp) || parseInt(defaultvalue);
+    const d = new Date(ver);
+    // r2path = "2022/1655832359111"
+    // keep in sync with serverless-dns/blocklists:upload.js
+    return d.getUTCFullYear() + "/" + ver;
+  } catch (ex) {
+    return null;
   }
+}
