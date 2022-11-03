@@ -1,5 +1,21 @@
 {
-  "dependencies": {
+  "private": true,
+  "name": "dl.rdns",
+  "version": "0.1",
+  "license": "MPL-2.0",
+  "description": "RethinkDNS downloads server with Workers and R2 / S3.",
+  "main": "./src/index.js",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/celzero/downloads.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/celzero/downloads/issues"
+  },
+  "homepage": "https://github.com/celzero/downloads#readme",
+  "devDependencies": {
     "wrangler": "^2.0.14"
   }
 }

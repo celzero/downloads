@@ -9,11 +9,12 @@ compatibility_date = "2022-06-21"
 workers_dev = true
 
 [[r2_buckets]]
-binding = 'R2_GEOIP'
-bucket_name = 'geoip'
+binding = 'R2_RDNS'
+bucket_name = 'rdns'
 
 [vars]
-LATEST_TSTAMP = "1655223903366"
-LATEST_VCODE = "19"
-GEOIP_TSTAMP = "1657376852175"
+LATEST_TSTAMP = "1667397478047"
+LATEST_VCODE = "22"
+GEOIP_TSTAMP = "1667349639157"
 STORE_URL = "https://dist.rethinkdns.com/"
+R2_STORE_URL = "https://cfstore.rethinkdns.com/"
