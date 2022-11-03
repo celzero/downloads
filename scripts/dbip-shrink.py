@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Copyright 2018 Jigsaw Operations LLC
+# Copyright 2022 RethinkDNS and its authors
 # SPDX-License-Identifier: Apache-2.0
 import csv
 import gzip

@@ -1,4 +1,5 @@
 .vscode/
+scripts/
 dist/
 node_modules/
 worker/
@@ -9,3 +10,4 @@ test/data/cache
 *.html
 *.yml
 *.toml
+*.py

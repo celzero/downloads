@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # exec env $(cat ./.cf.credentials | xargs) ./dbip-upload.py
 # asn.v64: iptoasn.com/data/ip2asn-combined.tsv.gz
+
+# Copyright 2022 RethinkDNS and its authors
+# SPDX-License-Identifier: MPL-2.0
+
 import boto3
 import os
 import pprint
