@@ -7,7 +7,6 @@
 
 import boto3
 import os
-import pprint
 from botocore.client import Config
 from datetime import datetime,timezone
 
