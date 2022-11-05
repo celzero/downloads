@@ -10,8 +10,8 @@ import * as modres from "./res.js";
 import * as cfg from "./cfg.js";
 import { fullTimestampFrom } from "./timestamp.js";
 
-const appTtl = 10800; // 60 * 60 * 3hr
-const blobTtl = 2592000; // 60 * 60 * 720hr
+const appTtlSec = 10800; // 60 * 60 * 3hr
+const blobTtlSec = 2592000; // 60 * 60 * 720hr
 
 export async function handleDownloadRequest(params, path, env) {
   // explicitly compress contents as gz
@@ -66,7 +66,7 @@ function determineArtifact(params, path, env) {
 
   let url = null;
   let filename = null;
-  let ttl = appTtl;
+  let ttl = appTtlSec;
 
   if (type === "geoip") {
     // blob or compressable-blob
@@ -83,37 +83,37 @@ function determineArtifact(params, path, env) {
       url = gurl + (v6 ? "/dbip.v6" : "/dbip.v4");
       filename = v6 ? "dbip.v6" : "dbip.v4";
     }
-    ttl = blobTtl;
+    ttl = blobTtlSec;
   } else if (type === "blocklists") {
     // json
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
     url = determineStoreUrl(env, version, codec) + "/filetag.json";
     filename = "filetag.json";
-    ttl = blobTtl;
+    ttl = blobTtlSec;
   } else if (type === "basicconfig") {
     // json
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
     url = determineStoreUrl(env, version, codec) + "/basicconfig.json";
     filename = "basicconfig.json";
-    ttl = blobTtl;
+    ttl = blobTtlSec;
   } else if (type === "rank") {
     // blob or compressable-blob
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
     url = determineStoreUrl(env, version, codec) + "/rd.txt";
     filename = "rank.bin";
-    ttl = blobTtl;
+    ttl = blobTtlSec;
   } else if (type === "trie") {
     // blob or compressable-blob
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
     url = determineStoreUrl(env, version, codec) + "/td.txt";
     filename = "trie.bin";
-    ttl = blobTtl;
+    ttl = blobTtlSec;
   } else if (type === "bloom") {
     // blob or compressable-blob
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
     url = determineStoreUrl(env, version, codec) + "/bloom_buckets.txt";
     filename = "bloom.bin";
-    ttl = blobTtl;
+    ttl = blobTtlSec;
   } else {
     // treat as if (type === "app")
     // always blob, never compressed?
