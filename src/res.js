@@ -6,14 +6,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-export const jsonHeader = { "content-type": "application/json;charset=UTF-8" };
+export const jsonHeaders = { "content-type": "application/json;charset=UTF-8" };
+export const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+  "Access-Control-Max-Age": "86400",
+};
+export const methodHeaders = {
+  "Allow": "GET,HEAD,POST,OPTIONS",
+};
+// 405: method not allowed
+export const response405 = new Response(null, { status: 405 });
 export const response500 = new Response(null, { status: 500 });
 export const response502 = new Response(null, { status: 502 });
 export const response503 = new Response(null, { status: 503 });
 
 export function mkJsonResponse(j) {
   const rj = JSON.stringify(j, /*replacer*/ null, /*space*/ 2);
-  return new Response(rj, { headers: jsonHeader });
+  return new Response(rj, { headers: jsonHeaders });
 }
 
 export function asStream(b, typ) {
@@ -53,3 +63,4 @@ export function allowCors(h) {
   h.set("Access-Control-Allow-Origin", "*");
   h.append("Vary", "Origin");
 }
+

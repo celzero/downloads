@@ -8,11 +8,18 @@
 
 import * as modup from "./update.js";
 import * as moddown from "./download.js";
-// downloads powered by STORE_URL and/or R2 bindings
+import * as modcorsopts from "./cors-opts.js";
+import * as modres from "./res.js";
 
 async function handleRequest(request, env) {
-  // TODO: handle preflight requests
+  // handle preflight requests
   // developers.cloudflare.com/workers/examples/cors-header-proxy
+  if (request.method === "OPTIONS") {
+    return modcorsopts.handleOptionsRequest(request);
+  }
+
+  if (!modcorsopts.allowMethod(request.method)) return modres.response405;
+
   const r = new URL(request.url);
 
   const path = r.pathname;
