@@ -7,15 +7,17 @@
  */
 
 import * as modres from "./res.js";
-import { isValidFileTimestamp, fullTimestampFrom } from "./timestamp.js";
+import { isValidBareTimestamp, fullTimestampFrom, bareTimestampFrom } from "./timestamp.js";
 
 export function handleUpdateRequest(params, path, env) {
   if (path === "/update/app") {
     return checkForAppUpdates(params, env.LATEST_VCODE);
   } else if (path === "/update/blocklists") {
-    return checkForBlocklistsUpdates(params, env.LATEST_TSTAMP);
+    const t = bareTimestampFrom(env.LATEST_TSTAMP);
+    return checkForBlocklistsUpdates(params, t);
   } else if (path === "/update/geoip") {
-    return checkForGeoipUpdates(params, env.GEOIP_TSTAMP);
+    const t = bareTimestampFrom(env.GEOIP_TSTAMP);
+    return checkForGeoipUpdates(params, t);
   }
 }
 
@@ -91,6 +93,9 @@ function shouldUpdateApp(latest, current) {
     // inform the client to update to the latest vcode.
     return "true";
   }
+
+  if (isNaN(latest) || isNaN(current)) return "true";
+
   return (latest > current).toString();
 }
 
@@ -104,7 +109,7 @@ function shouldUpdateBlocklists(latest, current) {
     return "true";
   }
   // client's tstamp invalid; course-correct.
-  if (!isValidFileTimestamp(current)) return "true";
+  if (!isValidBareTimestamp(current)) return "true";
 
   return (latest > current).toString();
 }
