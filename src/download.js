@@ -10,6 +10,9 @@ import * as modres from "./res.js";
 import * as cfg from "./cfg.js";
 import { fullTimestampFrom } from "./timestamp.js";
 
+const appTtl = 10800; // 60 * 60 * 3hr
+const blobTtl = 2592000; // 60 * 60 * 720hr
+
 export async function handleDownloadRequest(params, path, env) {
   // explicitly compress contents as gz
   const streamType = determineStreamType(params);
@@ -55,7 +58,7 @@ export async function handleDownloadRequest(params, path, env) {
 function determineArtifact(params, path, env) {
   // type = ["geoip", "app", "blocklists", "basicconfig", "rank", trie"]
   // version = timestampMs, or yyyy/timestampMs, or a number (vcode)
-  const [type, version, clientvcode, contentType] = determineIntent(
+  const [type, version, codec, contentType] = determineIntent(
     params,
     path,
     env
@@ -63,7 +66,7 @@ function determineArtifact(params, path, env) {
 
   let url = null;
   let filename = null;
-  let ttl = 10800; // 60 * 60 * 3hr
+  let ttl = appTtl;
 
   if (type === "geoip") {
     // blob or compressable-blob
@@ -80,37 +83,37 @@ function determineArtifact(params, path, env) {
       url = gurl + (v6 ? "/dbip.v6" : "/dbip.v4");
       filename = v6 ? "dbip.v6" : "dbip.v4";
     }
-    ttl = 2592000; // 60 * 60 * 720hr
+    ttl = blobTtl;
   } else if (type === "blocklists") {
     // json
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, clientvcode) + "/filetag.json";
+    url = determineStoreUrl(env, version, codec) + "/filetag.json";
     filename = "filetag.json";
-    ttl = 2592000; // 60 * 60 * 720hr
+    ttl = blobTtl;
   } else if (type === "basicconfig") {
     // json
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, clientvcode) + "/basicconfig.json";
+    url = determineStoreUrl(env, version, codec) + "/basicconfig.json";
     filename = "basicconfig.json";
-    ttl = 2592000; // 60 * 60 * 720hr
+    ttl = blobTtl;
   } else if (type === "rank") {
     // blob or compressable-blob
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, clientvcode) + "/rd.txt";
+    url = determineStoreUrl(env, version, codec) + "/rd.txt";
     filename = "rank.bin";
-    ttl = 2592000; // 60 * 60 * 720hr
+    ttl = blobTtl;
   } else if (type === "trie") {
     // blob or compressable-blob
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, clientvcode) + "/td.txt";
+    url = determineStoreUrl(env, version, codec) + "/td.txt";
     filename = "trie.bin";
-    ttl = 2592000; // 60 * 60 * 720hr
+    ttl = blobTtl;
   } else if (type === "bloom") {
     // blob or compressable-blob
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, clientvcode) + "/bloom_buckets.txt";
+    url = determineStoreUrl(env, version, codec) + "/bloom_buckets.txt";
     filename = "bloom.bin";
-    ttl = 2592000; // 60 * 60 * 720hr
+    ttl = blobTtl;
   } else {
     // treat as if (type === "app")
     // always blob, never compressed?
@@ -128,6 +131,21 @@ function determineClientvcode(params) {
     return params.get("vcode") || Number.MAX_VALUE;
   }
   return Number.MAX_VALUE;
+}
+
+function determineCodec(params, clientvcode) {
+  if (params) {
+    const codec = params.get("codec");
+    // expecting it to be one of u8 / u6
+    if (!emptyStr(codec)) return codec;
+  }
+
+  // if vcode is not set, assume legacy apk, ie Number.MAX_VALUE
+  if (clientvcode <= cfg.lastU8OnlyVcode || clientvcode === Number.MAX_VALUE) {
+    return "u8";
+  } else {
+    return "u6";
+  }
 }
 
 function determineContentType(type, params) {
@@ -159,7 +177,7 @@ function determineAppUrl(env, version) {
   }
 }
 
-function determineStoreUrl(env, version, clientvcode) {
+function determineStoreUrl(env, version, codec) {
   if (!version) throw new Error("blocklist version null: " + version);
 
   // version must be of form yyyy/timestampMs, ex: 2022/1666666666666
@@ -174,12 +192,7 @@ function determineStoreUrl(env, version, clientvcode) {
 
   const r2src = cfg.r2Http ? env.R2_STORE_URL : cfg.r2proto;
 
-  // if vcode is not set, assume legacy apk, ie Number.MAX_VALUE
-  if (clientvcode <= cfg.lastU8OnlyVcode || clientvcode === Number.MAX_VALUE) {
-    return r2src + "blocklists/" + version + "/u8";
-  } else {
-    return r2src + "blocklists/" + version + "/u6";
-  }
+  return r2src + "blocklists/" + version + "/" + codec;
 }
 
 function determineIntent(params, path, env) {
@@ -187,15 +200,17 @@ function determineIntent(params, path, env) {
   let type = "app";
   let version = env.LATEST_VCODE;
   let clientvcode = Number.MAX_VALUE;
+  let codec = "u8";
   // use built-in http compression as br / gz
   let contentType = "blob";
 
   clientvcode = determineClientvcode(params);
+  codec = determineCodec(params, clientvcode);
 
   if (!path || path.length <= 0) {
     console.info("intent: undetermined type/version; zero path");
     // return the default type/version/contentType
-    return [type, version, clientvcode, contentType];
+    return [type, version, codec, contentType];
   }
 
   const paths = path.split("/");
@@ -221,10 +236,10 @@ function determineIntent(params, path, env) {
   } else {
     console.warn("intent: unknown; path not set", path);
     // return the default contentType/type/version
-    return [type, version, clientvcode, contentType];
+    return [type, version, codec, contentType];
   }
   // determine contentType based on "type" and "params"
-  return [type, version, clientvcode, determineContentType(type, params)];
+  return [type, version, codec, determineContentType(type, params)];
 }
 
 // ref: github.com/kotx/render/blob/0a841f6/src/index.ts
@@ -252,4 +267,14 @@ async function doDownload(url, ttl, r2bucket) {
     console.warn("do-download: unsupported proto", url);
     return null;
   }
+}
+
+// github/serverless-dns/serverless-dns/blob/33b88dba/src/commons/util.js#L309
+function emptyStr(s) {
+  // treat false-y values as empty
+  if (!s) return true;
+  // check if s is indeed a str
+  if (typeof s !== "string") return false;
+  // if len(s) is 0, s is empty
+  return s.trim().length === 0;
 }
