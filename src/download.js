@@ -215,7 +215,13 @@ function determineIntent(params, path, env) {
 
   const paths = path.split("/");
   const p1 = paths && paths.length > 1 ? paths[1] : "";
-  const p2 = p1 && paths.length > 2 ? paths[2] : "";
+  const p2a = p1 && paths.length > 2 ? paths[2] : "";
+  const p3 = p2a && paths.length > 3 ? paths[3] : "";
+  // some clients may send req of type: /blocklists/2022/1667523717731
+  // which is incorrect, but check for "2022" and assign p3 as p2
+  // this code is temporary, and can be removed after a few months...
+  // hence only a check for "2022" and not "2023" / "2024" etc
+  const p2 = (p2a === "2022") ? p3 : p2a;
 
   if (p1 === "geoip") {
     type = p1;
