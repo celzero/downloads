@@ -3,6 +3,8 @@ main = "src/index.js"
 routes = [
   "dl.bravedns.com/*",
   "dl.rethinkdns.com/*",
+  "download.rethinkdns.com/*",
+  "download.bravedns.com/*"
 ]
 usage_model = "unbound"
 compatibility_date = "2022-06-21"
