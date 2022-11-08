@@ -221,7 +221,9 @@ function determineIntent(params, path, env) {
   // which is incorrect, but check for "2022" and assign p3 as p2
   // this code is temporary, and can be removed after a few months...
   // hence only a check for "2022" and not "2023" / "2024" etc
-  const p2 = p2a === "2022" ? p3 : p2a;
+  // +("2022") => int(2022), +("2022abc") => NaN
+  // parseInt("2022") => int(2022), parseInt("2022abc") => int(2022)
+  const p2 = p3 && +p2a >= 2022 ? p3 : p2a;
 
   if (p1 === "geoip") {
     type = p1;
