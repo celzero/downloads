@@ -21,7 +21,7 @@ export async function handleDownloadRequest(params, path, env) {
     params,
     path,
     env
-  );
+  );  
 
   const res1 = await doDownload(url, ttl, env.R2_RDNS);
   if (!res1 || !res1.ok) {
@@ -264,7 +264,7 @@ async function doDownload(url, ttl, r2bucket) {
       console.warn("r2: not ok for", key);
       return modres.response500;
     }
-  } else if (url && url.startsWith("https:")) {
+  } else if (url && url.startsWith("https:")) { 
     return await fetch(url, {
       // note: cacheTtlByStatus is enterprise-only
       cf: { cacheTtl: ttl },

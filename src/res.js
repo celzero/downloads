@@ -15,10 +15,15 @@ export const corsHeaders = {
 export const methodHeaders = {
   "Allow": "GET,HEAD,POST,OPTIONS",
 };
+// 400: bad request
+export const response400 = new Response(null, { status: 400 });
 // 405: method not allowed
 export const response405 = new Response(null, { status: 405 });
+// 500: internal error
 export const response500 = new Response(null, { status: 500 });
+// 502: bad gateway / server did not respond
 export const response502 = new Response(null, { status: 502 });
+// 503: service unavailable / server not ready
 export const response503 = new Response(null, { status: 503 });
 
 export function mkJsonResponse(j) {

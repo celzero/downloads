@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import { lastNoBlocklistUpdatesVcode } from "./cfg.js";
 import * as modres from "./res.js";
 import { isValidBareTimestamp, fullTimestampFrom, bareTimestampFrom } from "./timestamp.js";
 
@@ -19,6 +20,8 @@ export function handleUpdateRequest(params, path, env) {
     const t = bareTimestampFrom(env.GEOIP_TSTAMP);
     return checkForGeoipUpdates(params, t);
   }
+
+  return modres.response400;
 }
 
 function checkForAppUpdates(params, latestVersionCode) {
@@ -46,12 +49,17 @@ function checkForBlocklistsUpdates(params, latestTimestamp) {
     latest: latestTimestamp,
   };
 
+  if (params && params.has("vcode")) {
+    const clientvcode = params.get("vcode") || 0;
+    // do we still support this vcode?
+    if (clientvcode <= lastNoBlocklistUpdatesVcode) {
+      return res;
+    }
+  }
+
   if (params && params.has("tstamp")) {
-    let fileTimestamp = params.get("tstamp");
+    const fileTimestamp = params.get("tstamp");
     res.update = shouldUpdateBlocklists(latestTimestamp, fileTimestamp);
-    // TODO: does the vcode support latestTimestamp?
-    // TODO: in case appVersionCode = 0, err out
-    // appVersionCode = params.get("vcode") || 0
   }
 
   const response = modres.mkJsonResponse(res);
