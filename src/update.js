@@ -8,7 +8,11 @@
 
 import { lastNoBlocklistUpdatesVcode } from "./cfg.js";
 import * as modres from "./res.js";
-import { isValidBareTimestamp, fullTimestampFrom, bareTimestampFrom } from "./timestamp.js";
+import {
+  isValidBareTimestamp,
+  fullTimestampFrom,
+  bareTimestampFrom,
+} from "./timestamp.js";
 
 export function handleUpdateRequest(params, path, env) {
   if (path === "/update/app") {
@@ -32,7 +36,7 @@ function checkForAppUpdates(params, latestVersionCode) {
   };
 
   if (params) {
-    let appVersionCode = params.get("vcode") || Number.MAX_VALUE;
+    const appVersionCode = params.get("vcode") || Number.MAX_VALUE;
     res.update = shouldUpdateApp(latestVersionCode, appVersionCode);
   }
 
@@ -126,10 +130,10 @@ function shouldUpdateGeoip(latest, current) {
   if (latest == null || current == null) return "true";
   try {
     // ex: l_split -> ["2022", "1655832359"]
-    const l_split = latest.split("/");
-    const c_split = current.split("/");
-    latest = parseInt(l_split[1]);
-    current = parseInt(c_split[1]);
+    const lSplit = latest.split("/");
+    const cSplit = current.split("/");
+    latest = parseInt(lSplit[1]);
+    current = parseInt(cSplit[1]);
   } catch (ex) {
     console.warn("geoip ver", current, latest, "parse err", ex);
     // couldn't convert vcode to numbers, probably malformed

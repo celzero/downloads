@@ -13,7 +13,7 @@ export const corsHeaders = {
   "Access-Control-Max-Age": "86400",
 };
 export const methodHeaders = {
-  "Allow": "GET,HEAD,POST,OPTIONS",
+  Allow: "GET,HEAD,POST,OPTIONS",
 };
 // 400: bad request
 export const response400 = new Response(null, { status: 400 });
@@ -27,7 +27,7 @@ export const response502 = new Response(null, { status: 502 });
 export const response503 = new Response(null, { status: 503 });
 
 export function mkJsonResponse(j) {
-  const rj = JSON.stringify(j, /*replacer*/ null, /*space*/ 2);
+  const rj = JSON.stringify(j, /* replacer*/ null, /* space*/ 2);
   return new Response(rj, { headers: jsonHeaders });
 }
 
@@ -40,6 +40,7 @@ export function asStream(b, typ) {
 
 export function asAttachment(h, n) {
   if (!h) return;
+  // eslint-disable-next-line quotes
   h.set("content-disposition", 'attachment; filename="' + n + '"');
 }
 
@@ -59,13 +60,18 @@ export function withContentType(h, typ) {
 export function allowCors(h) {
   if (!h) return;
   // developers.cloudflare.com/workers/examples/cors-header-proxy
-  // r.origin  => protocol//<subdomain>.<rootdomain>.<tld> => https://download.bravedns.com
-  // which is not what we want. We instead need just the rootdomain: https://bravedns.com
-  // but that's complicated: https://stackoverflow.com/questions/8498592/ and so, hard-code
-  // our way out of this quagmire, since we know all our domains are ".com" TLDs.
-  // see also: https://stackoverflow.com/questions/14003332/
+  // r.origin
+  //   => protocol//<subdomain>.<rootdomain>.<tld>
+  //   => https://download.bravedns.com
+  // which is not what we want.
+  // We instead need just the rootdomain: https://bravedns.com
+  //
+  // but that's complicated: stackoverflow.com/questions/8498592
+  // and so, hard-code our way out of this quagmire, since we
+  // know all our domains are ".com" TLDs.
+  // also: stackoverflow.com/questions/14003332/
+  //
   // corsheader = r.origin
   h.set("Access-Control-Allow-Origin", "*");
   h.append("Vary", "Origin");
 }
-

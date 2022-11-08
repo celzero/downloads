@@ -4,16 +4,16 @@ on:
     inputs:
       # docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
       environment:
-        description: 'wrangler env to deploy to'
+        description: "wrangler env to deploy to"
         required: true
-        default: 'dev'
+        default: "dev"
         type: choice
         options:
-        - dev
-        - prod
+          - dev
+          - prod
       commit:
-        description: 'git tip commit to deploy'
-        default: 'main'
+        description: "git tip commit to deploy"
+        default: "main"
         required: true
 
   push:
@@ -38,7 +38,7 @@ on:
 env:
   GIT_REF: ${{ github.event.inputs.commit || github.ref }}
   # default is 'dev' which is really empty/no env
-  WORKERS_ENV: ''
+  WORKERS_ENV: ""
 
 jobs:
   deploy:
@@ -61,7 +61,7 @@ jobs:
         shell: bash
         env:
           # tagged deploy default to prod
-          WENV: 'prod'
+          WENV: "prod"
           COMMIT_SHA: ${{ github.sha }}
 
       - name: 🏗 Prepare
