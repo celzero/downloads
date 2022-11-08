@@ -21,7 +21,7 @@ export async function handleDownloadRequest(params, path, env) {
     params,
     path,
     env
-  );  
+  );
 
   const res1 = await doDownload(url, ttl, env.R2_RDNS);
   if (!res1 || !res1.ok) {
@@ -32,7 +32,7 @@ export async function handleDownloadRequest(params, path, env) {
   // 1. Make the headers mutable by re-constructing the Response
   // 2. Stream the response to let cf evict this worker from memory, sooner.
   // blog.cloudflare.com/workers-optimization-reduces-your-bill/
-  // developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams#attaching_a_reader
+  // Web/API/Streams_API/Using_readable_streams#attaching_a_reader
   if (res1.body) {
     const body = modres.asStream(res1.body, streamType);
     // do not await on res1! see #2 above
@@ -71,7 +71,7 @@ function determineArtifact(params, path, env) {
   if (type === "geoip") {
     // blob or compressable-blob
     const v6 = params.has("v6");
-    const v4 = params.has("v4");
+    // also: const v4 = params.has("v4");
     const asn64 = params.has("asn");
     // gurl: r2:geoip/yyyy/tstamp
     const gurl = determineGeoIpUrl(env, version);
@@ -202,7 +202,7 @@ function determineIntent(params, path, env) {
   let clientvcode = Number.MAX_VALUE;
   let codec = "u8";
   // use built-in http compression as br / gz
-  let contentType = "blob";
+  const contentType = "blob";
 
   clientvcode = determineClientvcode(params);
   codec = determineCodec(params, clientvcode);
@@ -221,7 +221,7 @@ function determineIntent(params, path, env) {
   // which is incorrect, but check for "2022" and assign p3 as p2
   // this code is temporary, and can be removed after a few months...
   // hence only a check for "2022" and not "2023" / "2024" etc
-  const p2 = (p2a === "2022") ? p3 : p2a;
+  const p2 = p2a === "2022" ? p3 : p2a;
 
   if (p1 === "geoip") {
     type = p1;
@@ -258,13 +258,13 @@ async function doDownload(url, ttl, r2bucket) {
     // developers.cloudflare.com/r2/runtime-apis/#r2object-definition
     const ok = r2obj && r2obj.size > 0;
     if (ok) {
-      // console.debug("r2obj sz:", r2obj.size, " k:", r2obj.key, "v:", r2obj.version)
+      // log("r2obj sz:", r2obj.size, " k:", r2obj.key, "v:", r2obj.version)
       return new Response(r2obj.body);
     } else {
       console.warn("r2: not ok for", key);
       return modres.response500;
     }
-  } else if (url && url.startsWith("https:")) { 
+  } else if (url && url.startsWith("https:")) {
     return await fetch(url, {
       // note: cacheTtlByStatus is enterprise-only
       cf: { cacheTtl: ttl },
