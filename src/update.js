@@ -53,16 +53,13 @@ function checkForBlocklistsUpdates(params, latestTimestamp) {
     latest: latestTimestamp,
   };
 
-  if (params && params.has("vcode")) {
-    const clientvcode = params.get("vcode") || 0;
-    // do we still support this vcode?
-    if (clientvcode <= lastNoBlocklistUpdatesVcode) {
-      return res;
-    }
-  }
-
-  if (params && params.has("tstamp")) {
-    const fileTimestamp = params.get("tstamp");
+  const clientvcode = params && params.has("vcode") ? params.get("vcode") : 0;
+  const fileTimestamp =
+    params && params.has("tstamp") ? params.get("tstamp") : 0;
+  // do we still support this vcode?
+  if (clientvcode <= lastNoBlocklistUpdatesVcode) {
+    res.update = false;
+  } else {
     res.update = shouldUpdateBlocklists(latestTimestamp, fileTimestamp);
   }
 
