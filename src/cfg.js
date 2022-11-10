@@ -15,7 +15,9 @@ export const r2proto = "r2:";
 export const lastVersionOnS3 = 1666666666666; // Oct 25, 2022
 // the last version code that supports u8-encoded blocklists only
 export const lastU8OnlyVcode = Number.MAX_VALUE; // unknown
-// the last version code beyond which updates won't be delivered
-export const lastNoBlocklistUpdatesVcode = 22; // v053k
+// the last version code beyond which new blocklists won't be delivered
+export const lastLegacyBlocklistVcode = 22; // v053k
+// the last legacy timestamp, 5 Sep 2022
+export const latestLegacyTimestamp = 1662384683026;
 // the last apk version code uploaded to S3
 export const lastVcodeApkOnS3 = 22; // v053k

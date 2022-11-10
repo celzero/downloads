@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { lastNoBlocklistUpdatesVcode } from "./cfg.js";
+import * as cfg from "./cfg.js";
 import * as modres from "./res.js";
 import {
   isValidBareTimestamp,
@@ -54,13 +54,16 @@ function checkForBlocklistsUpdates(params, latestTimestamp) {
   };
 
   const clientvcode = params && params.has("vcode") ? params.get("vcode") : 0;
-  const fileTimestamp =
+  const clientTstamp =
     params && params.has("tstamp") ? params.get("tstamp") : 0;
-  // do we still support this vcode?
-  if (clientvcode <= lastNoBlocklistUpdatesVcode) {
-    res.update = false;
+  // legacy timestamp if vcode below version 22
+  if (clientvcode <= cfg.lastLegacyBlocklistVcode) {
+    res.update = shouldUpdateBlocklists(
+      cfg.latestLegacyTimestamp,
+      clientTstamp
+    );
   } else {
-    res.update = shouldUpdateBlocklists(latestTimestamp, fileTimestamp);
+    res.update = shouldUpdateBlocklists(latestTimestamp, clientTstamp);
   }
 
   const response = modres.mkJsonResponse(res);

@@ -250,6 +250,9 @@ function determineIntent(params, path, env) {
   return [type, version, codec, determineContentType(type, params)];
 }
 
+// TODO: handle range downloads:
+// eslint-disable-next-line max-len
+// github.com/lukeed/worktop/pull/167/files#diff-ab7f34300953228afdbf6ba7326c3ae47ae1bab76b51a4f75539910cb334abd9R162-R182
 // ref: github.com/kotx/render/blob/0a841f6/src/index.ts
 async function doDownload(url, ttl, r2bucket) {
   if (url && url.startsWith(cfg.r2proto)) {
