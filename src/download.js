@@ -271,8 +271,13 @@ async function doDownload(url, ttl, r2bucket) {
     }
   } else if (url && url.startsWith("https:")) {
     return await fetch(url, {
-      // note: cacheTtlByStatus is enterprise-only
-      cf: { cacheTtl: ttl },
+      // cacheEverything is needed because otherwise Cloudflare
+      // does not cache .txt files, but does cache .apk
+      // and content-type doesn't matter reg what it caches
+      // developers.cloudflare.com/cache/about/default-cache-behavior
+      // note: cacheTtlByStatus is enterprise-only, but cacheEverything
+      // (supposedly) does not cache 5xx and 4xx responses
+      cf: { cacheTtl: ttl, cacheEverything: true },
     });
   } else {
     console.warn("do-download: unsupported proto", url);
