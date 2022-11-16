@@ -18,6 +18,6 @@ export const lastU8OnlyVcode = Number.MAX_VALUE; // unknown
 // the last version code beyond which new blocklists won't be delivered
 export const lastLegacyBlocklistVcode = 22; // v053k
 // the last legacy timestamp, 5 Sep 2022
-export const latestLegacyTimestamp = 1662384683026;
+export const latestLegacyTimestamp = 1668635781244;
 // the last apk version code uploaded to S3
 export const lastVcodeApkOnS3 = 22; // v053k
