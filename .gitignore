@@ -7,6 +7,7 @@ logs
 *.v4
 *.v64
 *.python-version
+**basicconfig.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

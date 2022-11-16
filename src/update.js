@@ -18,7 +18,7 @@ export function handleUpdateRequest(params, path, env) {
   if (path === "/update/app") {
     return checkForAppUpdates(params, env.LATEST_VCODE);
   } else if (path === "/update/blocklists") {
-    const t = bareTimestampFrom(env.LATEST_TSTAMP);
+    const t = bareTimestampFrom(cfg.latestTimestamp());
     return checkForBlocklistsUpdates(params, t);
   } else if (path === "/update/geoip") {
     const t = bareTimestampFrom(env.GEOIP_TSTAMP);

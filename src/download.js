@@ -240,7 +240,7 @@ function determineIntent(params, path, env) {
   ) {
     // one among: blocklists, rank, trie, basicconfig, bloom
     type = p1;
-    version = fullTimestampFrom(p2, env.LATEST_TSTAMP);
+    version = fullTimestampFrom(p2, cfg.latestTimestamp());
   } else {
     console.warn("intent: unknown; path not set", path);
     // return the default contentType/type/version

@@ -7,7 +7,7 @@
   "main": "./src/index.js",
   "type": "module",
   "scripts": {
-    "prepare": "husky install"
+    "prepare": "./pre.sh && husky install"
   },
   "repository": {
     "type": "git",
@@ -29,5 +29,6 @@
   "lint-staged": {
     "*.js": "eslint --cache --fix",
     "*.ts": "prettier --write"
-  }
+  },
+  "eslintIgnore": ["src/cfg.js"]
 }

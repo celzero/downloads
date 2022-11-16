@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+// do not import any thing from src/ here
+
 // return true if ts is a valid unix epoch type (number)
 export function isValidBareTimestamp(ts) {
   try {

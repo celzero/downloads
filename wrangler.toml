@@ -15,7 +15,6 @@ binding = 'R2_RDNS'
 bucket_name = 'rdns'
 
 [vars]
-LATEST_TSTAMP = "1668635781244"
 LATEST_VCODE = "22"
 GEOIP_TSTAMP = "1667349639157"
 STORE_URL = "https://dist.rethinkdns.com/"
