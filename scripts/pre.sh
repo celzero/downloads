@@ -14,7 +14,7 @@ now=`date --utc +"%s"`
 # date from timestamp: stackoverflow.com/a/16311821
 day=`date -d @$now "+%d"`
 # week; ceil: stackoverflow.com/a/12536521
-wk=$(((day + 7 -1) / 7))
+wk=$(((day + 8 - 1) / 8))
 # year
 yyyy=`date -d @$now "+%Y"`
 # month
@@ -33,6 +33,8 @@ do
         echo "pre.sh: no op"
         exit 0
     else
+        # versioning scheme:
+        # github.com/serverless-dns/blocklists/blob/6d13b104e1/src/ver.js#L19
         wget -q "${burl}/${yyyy}/${dir}/${mm}-${wk}/${codec}/${f}" -O "${out}"
         wcode=$?
 
@@ -49,8 +51,8 @@ do
     # see if the prev wk was latest
     wk=$((wk - 1))
     if [ $wk -eq 0 ]; then
-        # only feb has 28 days (28/7 => 4), edge-case overcome by retries
-        wk="5"
+        # lowest is feb; 28 days (28/8 => 3)
+        wk="4"
         # prev month
         mm=$((mm - 1))
     fi

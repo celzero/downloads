@@ -7,7 +7,7 @@
   "main": "./src/index.js",
   "type": "module",
   "scripts": {
-    "prepare": "./pre.sh && husky install"
+    "prepare": "./scripts/pre.sh && husky install"
   },
   "repository": {
     "type": "git",

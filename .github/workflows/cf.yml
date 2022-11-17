@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout
+      - name: 🚚 Checkout
         uses: actions/checkout@v3
         with:
           ref: ${{ env.GIT_REF }}
