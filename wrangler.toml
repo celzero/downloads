@@ -13,6 +13,7 @@ workers_dev = true
 [[r2_buckets]]
 binding = 'R2_RDNS'
 bucket_name = 'rdns'
+preview_bucket_name='z-test-rdns'
 
 [vars]
 LATEST_VCODE = "22"
