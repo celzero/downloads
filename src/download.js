@@ -86,8 +86,10 @@ function determineArtifact(params, path, env) {
     ttl = blobTtlSec;
   } else if (type === "blocklists") {
     // json
+    // one of filetag-legacy.json, filetag.json
+    const ftname = determineFiletag(codec, version);
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, codec) + "/filetag.json";
+    url = determineStoreUrl(env, version, codec) + ftname;
     filename = "filetag.json";
     ttl = blobTtlSec;
   } else if (type === "basicconfig") {
@@ -177,6 +179,14 @@ function determineAppUrl(env, version) {
   }
 }
 
+function determineFiletag(codec, version) {
+  if (codec === cfg.u6) return "/filetag.json";
+  if (version >= cfg.firstVersionWithLegacyFiletag) {
+    return "/filetag-legacy.json";
+  }
+  return "/filetag.json";
+}
+
 function determineStoreUrl(env, version, codec) {
   if (!version) throw new Error("blocklist version null: " + version);
 
@@ -238,7 +248,7 @@ function determineIntent(params, path, env) {
     p1 === "basicconfig" ||
     p1 === "bloom"
   ) {
-    // one among: blocklists, rank, trie, basicconfig, bloom
+    // ignore p2
     type = p1;
     version = fullTimestampFrom(p2, cfg.latestTimestamp());
   } else {

@@ -58,10 +58,10 @@ function checkForBlocklistsUpdates(params, latestTimestamp) {
     params && params.has("tstamp") ? params.get("tstamp") : 0;
   // legacy timestamp if vcode below version 22
   if (clientvcode <= cfg.lastLegacyBlocklistVcode) {
-    res.update = shouldUpdateBlocklists(
-      cfg.latestLegacyTimestamp,
-      clientTstamp
-    );
+    // backwards compat is supported for some an extended time period
+    // than originally planned; when stopping support for it,
+    // use cfg.latestLegacyTimestamp instead of latestTimestamp below.
+    res.update = shouldUpdateBlocklists(latestTimestamp, clientTstamp);
   } else {
     res.update = shouldUpdateBlocklists(latestTimestamp, clientTstamp);
   }

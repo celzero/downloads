@@ -15,20 +15,29 @@ export const r2Http = true;
 // no double forward-slash // unlike http
 export const r2proto = "r2:";
 
-// blocklists below this version are on s3, the rest on r2
-export const lastVersionOnS3 = 1666666666666; // Oct 25, 2022
-// the last version code that supports u8-encoded blocklists only
-export const lastU8OnlyVcode = Number.MAX_VALUE; // unknown
+// unused for now
 // the last version code beyond which new blocklists won't be delivered
 export const lastLegacyBlocklistVcode = 22; // v053k
 // the last legacy timestamp, 16 Nov 2022
-export const latestLegacyTimestamp = 1668635781244;
+// unused since legacy blocklists are supported for a longer period now
+export const latestLegacyTimestamp = 1668635781244; // unused
+
+// blocklists below this version are on s3, the rest on r2
+export const lastVersionOnS3 = 1666666666666; // 25 Oct 2022
+// the last version code that supports u8-encoded blocklists only
+export const lastU8OnlyVcode = Number.MAX_VALUE; // unknown
 // fallback timestamp if latest isn't retrieved by pre.sh
-export const fallbackTimestamp = 1668635781244;
+export const fallbackTimestamp = 1668635781244; // 16 Nov 2022
 // the last apk version code uploaded to S3
 export const lastVcodeApkOnS3 = 22; // v053k
+// the first version since legacy filetag is published alongside new filetag
+// note: this timestamp / version is a random date before the first legacy
+// filetag (ie, 24 Nov 2021) but after the first new filetag (ie, 8 Nov 2022)
+export const firstVersionWithLegacyFiletag = 1669210235259; // 23 Nov 2022
 
 export function latestTimestamp() {
+  // not using fallbackTimestamp will result in an exception whenever
+  // trieConfig.timestamp is not a valid timestamp / version
   const t = bareTimestampFrom(trieconfig.timestamp, fallbackTimestamp);
   return (t > fallbackTimestamp) ? t : fallbackTimestamp;
 }
