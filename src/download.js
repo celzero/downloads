@@ -8,7 +8,7 @@
 
 import * as modres from "./res.js";
 import * as cfg from "./cfg.js";
-import { fullTimestampFrom } from "./timestamp.js";
+import { bareTimestampFrom, fullTimestampFrom } from "./timestamp.js";
 
 const appTtlSec = 10800; // 60 * 60 * 3hr
 const blobTtlSec = 2592000; // 60 * 60 * 720hr
@@ -58,7 +58,7 @@ export async function handleDownloadRequest(params, path, env) {
 function determineArtifact(params, path, env) {
   // type = ["geoip", "app", "blocklists", "basicconfig", "rank", trie"]
   // version = timestampMs, or yyyy/timestampMs, or a number (vcode)
-  const [type, version, codec, contentType] = determineIntent(
+  const [type, version, codec, vcode, contentType] = determineIntent(
     params,
     path,
     env
@@ -87,7 +87,7 @@ function determineArtifact(params, path, env) {
   } else if (type === "blocklists") {
     // json
     // one of filetag-legacy.json, filetag.json
-    const ftname = determineFiletag(codec, version);
+    const ftname = determineFiletag(vcode, codec, version);
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
     url = determineStoreUrl(env, version, codec) + ftname;
     filename = "filetag.json";
@@ -109,12 +109,6 @@ function determineArtifact(params, path, env) {
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
     url = determineStoreUrl(env, version, codec) + "/td.txt";
     filename = "trie.bin";
-    ttl = blobTtlSec;
-  } else if (type === "bloom") {
-    // blob or compressable-blob
-    // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, codec) + "/bloom_buckets.txt";
-    filename = "bloom.bin";
     ttl = blobTtlSec;
   } else {
     // treat as if (type === "app")
@@ -144,9 +138,9 @@ function determineCodec(params, clientvcode) {
 
   // if vcode is not set, assume legacy apk, ie Number.MAX_VALUE
   if (clientvcode <= cfg.lastU8OnlyVcode || clientvcode === Number.MAX_VALUE) {
-    return "u8";
+    return cfg.u8;
   } else {
-    return "u6";
+    return cfg.u6;
   }
 }
 
@@ -179,12 +173,21 @@ function determineAppUrl(env, version) {
   }
 }
 
-function determineFiletag(codec, version) {
-  if (codec === cfg.u6) return "/filetag.json";
-  if (version >= cfg.firstVersionWithLegacyFiletag) {
-    return "/filetag-legacy.json";
+function determineFiletag(vcode, codec, fullversion) {
+  const version = bareTimestampFrom(fullversion);
+  // if filetag-legacy wasn't generated for this version, send the default
+  if (version < cfg.firstVersionWithLegacyFiletag) {
+    return "/filetag.json";
   }
-  return "/filetag.json";
+  // for the newer codec u6, the new filetag is the default
+  if (codec === cfg.u6) return "/filetag.json";
+  // if the app version supports latest filetag, then send the latest
+  if (vcode !== Number.MAX_VALUE && vcode > cfg.lastLegacyBlocklistVcode) {
+    return "/filetag.json";
+  }
+  // for [older apps (vcode) or older codec (u8)] but
+  // newer timestamp (version), send the legacy filetag
+  return "/filetag-legacy.json";
 }
 
 function determineStoreUrl(env, version, codec) {
@@ -212,7 +215,7 @@ function determineIntent(params, path, env) {
   let clientvcode = Number.MAX_VALUE;
   let codec = "u8";
   // use built-in http compression as br / gz
-  const contentType = "blob";
+  let contentType = "blob";
 
   clientvcode = determineClientvcode(params);
   codec = determineCodec(params, clientvcode);
@@ -220,7 +223,7 @@ function determineIntent(params, path, env) {
   if (!path || path.length <= 0) {
     console.info("intent: undetermined type/version; zero path");
     // return the default type/version/contentType
-    return [type, version, codec, contentType];
+    return [type, version, codec, clientvcode, contentType];
   }
 
   const paths = path.split("/");
@@ -254,10 +257,12 @@ function determineIntent(params, path, env) {
   } else {
     console.warn("intent: unknown; path not set", path);
     // return the default contentType/type/version
-    return [type, version, codec, contentType];
+    return [type, version, codec, clientvcode, contentType];
   }
+
   // determine contentType based on "type" and "params"
-  return [type, version, codec, determineContentType(type, params)];
+  contentType = determineContentType(type, params);
+  return [type, version, codec, clientvcode, contentType];
 }
 
 // TODO: handle range downloads:

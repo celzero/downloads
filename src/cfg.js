@@ -15,6 +15,12 @@ export const r2Http = true;
 // no double forward-slash // unlike http
 export const r2proto = "r2:";
 
+// github.com/serverless-dns/trie/blob/4032130d6/src/codec.js
+// even though these aren't equal to the ones defined in trie/codec.js
+// (aka b6 = 6 / b8 = 8)they denote the same thing (ie, the same codec).
+export const u6 = "u6";
+export const u8 = "u8";
+
 // unused for now
 // the last version code beyond which new blocklists won't be delivered
 export const lastLegacyBlocklistVcode = 22; // v053k
