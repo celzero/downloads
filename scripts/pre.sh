@@ -14,7 +14,7 @@ now=`date --utc +"%s"`
 # date from timestamp: stackoverflow.com/a/16311821
 day=`date -d @$now "+%d"`
 # week; ceil: stackoverflow.com/a/12536521
-wk=$(((day + 8 - 1) / 8))
+wk=$(((day + 7 - 1) / 7))
 # year
 yyyy=`date -d @$now "+%Y"`
 # month
@@ -51,8 +51,8 @@ do
     # see if the prev wk was latest
     wk=$((wk - 1))
     if [ $wk -eq 0 ]; then
-        # lowest is feb; 28 days (28/8 => 3)
-        wk="4"
+        # only feb has 28 days (28/7 => 4), edge-case overcome by retries
+        wk="5"
         # prev month
         mm=$((mm - 1))
     fi
