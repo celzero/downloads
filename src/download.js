@@ -133,7 +133,9 @@ function determineCodec(params, clientvcode) {
   if (params) {
     const codec = params.get("codec");
     // expecting it to be one of u8 / u6
-    if (!emptyStr(codec)) return codec;
+    if (!emptyStr(codec)) {
+      if (codec === cfg.u8 || codec === cfg.u6) return codec;
+    } // else: fallthrough
   }
 
   // if vcode is not set, assume legacy apk, ie Number.MAX_VALUE
@@ -212,13 +214,12 @@ function determineIntent(params, path, env) {
   // defaults
   let type = "app";
   let version = env.LATEST_VCODE;
-  let clientvcode = Number.MAX_VALUE;
-  let codec = "u8";
   // use built-in http compression as br / gz
   let contentType = "blob";
-
-  clientvcode = determineClientvcode(params);
-  codec = determineCodec(params, clientvcode);
+  // Number.MAX_VALUE is the default
+  const clientvcode = determineClientvcode(params);
+  // cfg.u8 is the default
+  const codec = determineCodec(params, clientvcode);
 
   if (!path || path.length <= 0) {
     console.info("intent: undetermined type/version; zero path");
