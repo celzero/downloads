@@ -35,7 +35,7 @@ do
     else
         # versioning scheme:
         # github.com/serverless-dns/blocklists/blob/6d13b104e1/src/ver.js#L19
-        wget -q "${burl}/${yyyy}/${dir}/${mm}-${wk}/${codec}/${f}" -O "${out}"
+        wget "${burl}/${yyyy}/${dir}/${mm}-${wk}/${codec}/${f}" -O "${out}"
         wcode=$?
 
         if [ $wcode -eq 0 ]; then
