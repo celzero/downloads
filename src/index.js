@@ -21,14 +21,10 @@ async function handleRequest(request, env) {
   if (!modcorsopts.allowMethod(request.method)) return modres.response405;
 
   const r = new URL(request.url);
-
-  const path = r.pathname;
-  const params = r.searchParams;
-
-  if (path.startsWith("/update")) {
-    return modup.handleUpdateRequest(params, path, env);
+  if (r.pathname.startsWith("/update")) {
+    return modup.handleUpdateRequest(env, request);
   } else {
-    return moddown.handleDownloadRequest(params, path, env);
+    return moddown.handleDownloadRequest(env, request);
   }
 }
 

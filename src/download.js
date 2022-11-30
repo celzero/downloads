@@ -13,8 +13,14 @@ import { bareTimestampFrom, fullTimestampFrom } from "./timestamp.js";
 const appTtlSec = 10800; // 60 * 60 * 3hr
 const blobTtlSec = 2592000; // 60 * 60 * 720hr
 
-export async function handleDownloadRequest(params, path, env) {
-  // explicitly compress contents as gz
+export async function handleDownloadRequest(env, request) {
+  const r = new URL(request.url);
+
+  const path = r.pathname;
+  const params = r.searchParams;
+  const reqheaders = request.headers;
+
+  // explicitly compress contents as gz?
   const streamType = determineStreamType(params);
 
   const [url, filename, ttl, contentType] = determineArtifact(
@@ -23,7 +29,7 @@ export async function handleDownloadRequest(params, path, env) {
     env
   );
 
-  const res1 = await doDownload(url, ttl, env.R2_RDNS);
+  const res1 = await doDownload(url, ttl, reqheaders, env.R2_RDNS);
   if (!res1 || !res1.ok) {
     console.warn(filename, "download for", url, "failed", contentType);
     return modres.response502;
@@ -266,11 +272,11 @@ function determineIntent(params, path, env) {
   return [type, version, codec, clientvcode, contentType];
 }
 
-// TODO: handle range downloads:
-// eslint-disable-next-line max-len
-// github.com/lukeed/worktop/pull/167/files#diff-ab7f34300953228afdbf6ba7326c3ae47ae1bab76b51a4f75539910cb334abd9R162-R182
 // ref: github.com/kotx/render/blob/0a841f6/src/index.ts
-async function doDownload(url, ttl, r2bucket) {
+async function doDownload(url, ttl, clientheaders, r2bucket) {
+  // TODO: translate client-headers like 'Range' to r2 api as approp
+  // eslint-disable-next-line max-len
+  // github.com/lukeed/worktop/pull/167/files#diff-ab7f34300953228afdbf6ba7326c3ae47ae1bab76b51a4f75539910cb334abd9R162-R182
   if (url && url.startsWith(cfg.r2proto)) {
     // slice out the prefix r2: from url
     const key = url.slice(url.indexOf(":") + 1);
@@ -286,7 +292,8 @@ async function doDownload(url, ttl, r2bucket) {
       return modres.response500;
     }
   } else if (url && url.startsWith("https:")) {
-    return await fetch(url, {
+    const r2req = new Request(url, { headers: clientheaders });
+    return await fetch(r2req, {
       // cacheEverything is needed because otherwise Cloudflare
       // does not cache .txt files, but does cache .apk
       // and content-type doesn't matter reg what it caches

@@ -14,7 +14,12 @@ import {
   bareTimestampFrom,
 } from "./timestamp.js";
 
-export function handleUpdateRequest(params, path, env) {
+export function handleUpdateRequest(env, request) {
+  const r = new URL(request.url);
+
+  const path = r.pathname;
+  const params = r.searchParams;
+
   if (path === "/update/app") {
     return checkForAppUpdates(params, env.LATEST_VCODE);
   } else if (path === "/update/blocklists") {
