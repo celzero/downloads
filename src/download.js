@@ -39,8 +39,8 @@ export async function handleDownloadRequest(env, request) {
   // 2. Stream the response to let cf evict this worker from memory, sooner.
   // blog.cloudflare.com/workers-optimization-reduces-your-bill/
   // Web/API/Streams_API/Using_readable_streams#attaching_a_reader
-  if (res1.body) {
-    const body = modres.asStream(res1.body, streamType);
+  const body = modres.asStream(res1, streamType);
+  if (body) {
     // do not await on res1! see #2 above
     const res2 = new Response(body, res1);
     // TODO: remove aws headers
@@ -160,8 +160,14 @@ function determineContentType(type, params) {
 }
 
 function determineStreamType(params) {
-  const compressed = params.get("gzipped") != null;
-  return compressed ? "stream-gz" : "";
+  const compressed = params.get("gz") != null;
+  const decompressed = params.get("nogz") != null;
+  if (compressed) {
+    return "stream-gz";
+  } else if (decompressed) {
+    return "stream-nogz";
+  }
+  return "";
 }
 
 function determineGeoIpUrl(env, version) {

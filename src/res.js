@@ -31,9 +31,20 @@ export function mkJsonResponse(j) {
   return new Response(rj, { headers: jsonHeaders });
 }
 
-export function asStream(b, typ) {
+/**
+ * @param {Response} res
+ * @param {string} typ
+ * @returns {ReadableStream}
+ */
+export function asStream(res, typ) {
+  const b = res.body;
+
+  if (!b) return null;
+
   if (typ === "stream-gz") {
-    return b.pipeThrough(new CompressionStream("gzip"));
+    return b.pipeThrough(new CompressionionStream("gzip"));
+  } else if (typ === "stream-nogz") {
+    return b.pipeThrough(new DecompressionStream("gzip"));
   }
   return b;
 }
