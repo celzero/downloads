@@ -21,6 +21,9 @@ export const r2proto = "r2:";
 export const u6 = "u6";
 export const u8 = "u8";
 
+export const blocklistsDir = "blocklists";
+export const testBlocklistsDir = "testblocklists";
+
 // unused for now
 // the last version code beyond which new blocklists won't be delivered
 export const lastLegacyBlocklistVcode = 22; // v053k

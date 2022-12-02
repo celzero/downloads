@@ -64,7 +64,9 @@ export async function handleDownloadRequest(env, request) {
 function determineArtifact(params, path, env) {
   // type = ["geoip", "app", "blocklists", "basicconfig", "rank", trie"]
   // version = timestampMs, or yyyy/timestampMs, or a number (vcode)
-  const [type, version, codec, vcode, contentType] = determineIntent(
+  // codec = "u8" or "u6"
+  // contentType = "json", "blob", "compressable-blob"
+  const [type, version, codec, vcode, contentType, testbl] = determineIntent(
     params,
     path,
     env
@@ -95,25 +97,25 @@ function determineArtifact(params, path, env) {
     // one of filetag-legacy.json, filetag.json
     const ftname = determineFiletag(vcode, codec, version);
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, codec) + ftname;
+    url = determineStoreUrl(env, version, codec, testbl) + ftname;
     filename = "filetag.json";
     ttl = blobTtlSec;
   } else if (type === "basicconfig") {
     // json
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, codec) + "/basicconfig.json";
+    url = determineStoreUrl(env, version, codec, testbl) + "/basicconfig.json";
     filename = "basicconfig.json";
     ttl = blobTtlSec;
   } else if (type === "rank") {
     // blob or compressable-blob
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, codec) + "/rd.txt";
+    url = determineStoreUrl(env, version, codec, testbl) + "/rd.txt";
     filename = "rank.bin";
     ttl = blobTtlSec;
   } else if (type === "trie") {
     // blob or compressable-blob
     // r2:blocklists/yyyy/tstamp/[u6|u8] or https://<url>/blocklists/tstamp
-    url = determineStoreUrl(env, version, codec) + "/td.txt";
+    url = determineStoreUrl(env, version, codec, testbl) + "/td.txt";
     filename = "trie.bin";
     ttl = blobTtlSec;
   } else {
@@ -133,6 +135,13 @@ function determineClientvcode(params) {
     return params.get("vcode") || Number.MAX_VALUE;
   }
   return Number.MAX_VALUE;
+}
+
+function determineIfTest(params) {
+  if (params) {
+    return params.has("test");
+  }
+  return false;
 }
 
 function determineCodec(params, clientvcode) {
@@ -204,9 +213,10 @@ function determineFiletag(vcode, codec, fullversion) {
   return "/filetag-legacy.json";
 }
 
-function determineStoreUrl(env, version, codec) {
+function determineStoreUrl(env, version, codec, test = false) {
   if (!version) throw new Error("blocklist version null: " + version);
 
+  const bldir = test ? cfg.testBlocklistsDir : cfg.blocklistsDir;
   // version must be of form yyyy/timestampMs, ex: 2022/1666666666666
   const v = version.split("/");
 
@@ -214,12 +224,12 @@ function determineStoreUrl(env, version, codec) {
 
   const timestamp = v[1];
   if (timestamp <= cfg.lastVersionOnS3) {
-    return env.STORE_URL + "blocklists/" + timestamp;
+    return env.STORE_URL + bldir + "/" + timestamp;
   }
 
   const r2src = cfg.r2Http ? env.R2_STORE_URL : cfg.r2proto;
 
-  return r2src + "blocklists/" + version + "/" + codec;
+  return r2src + bldir + "/" + version + "/" + codec;
 }
 
 function determineIntent(params, path, env) {
@@ -232,11 +242,13 @@ function determineIntent(params, path, env) {
   const clientvcode = determineClientvcode(params);
   // cfg.u8 is the default
   const codec = determineCodec(params, clientvcode);
+  // test is false by default
+  const test = determineIfTest(params);
 
   if (!path || path.length <= 0) {
     console.info("intent: undetermined type/version; zero path");
     // return the default type/version/contentType
-    return [type, version, codec, clientvcode, contentType];
+    return [type, version, codec, clientvcode, contentType, test];
   }
 
   const paths = path.split("/");
@@ -270,12 +282,12 @@ function determineIntent(params, path, env) {
   } else {
     console.warn("intent: unknown; path not set", path);
     // return the default contentType/type/version
-    return [type, version, codec, clientvcode, contentType];
+    return [type, version, codec, clientvcode, contentType, test];
   }
 
   // determine contentType based on "type" and "params"
   contentType = determineContentType(type, params);
-  return [type, version, codec, clientvcode, contentType];
+  return [type, version, codec, clientvcode, contentType, test];
 }
 
 // ref: github.com/kotx/render/blob/0a841f6/src/index.ts
