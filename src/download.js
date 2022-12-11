@@ -310,20 +310,44 @@ async function doDownload(url, ttl, clientheaders, r2bucket) {
       return modres.response500;
     }
   } else if (url && url.startsWith("https:")) {
-    const r2req = new Request(url, { headers: clientheaders });
-    return await fetch(r2req, {
-      // cacheEverything is needed because otherwise Cloudflare
-      // does not cache .txt files, but does cache .apk
-      // and content-type doesn't matter reg what it caches
-      // developers.cloudflare.com/cache/about/default-cache-behavior
-      // note: cacheTtlByStatus is enterprise-only, but cacheEverything
-      // (supposedly) does not cache 5xx and 4xx responses
-      cf: { cacheTtl: ttl, cacheEverything: true },
+    const r2req = new Request(url, {
+      headers: essentialHeaders(clientheaders),
+      cf: cfCacheDirectives(ttl),
     });
+    return await fetch(r2req);
   } else {
     console.warn("do-download: unsupported proto", url);
     return null;
   }
+}
+
+function essentialHeaders(headers) {
+  const out = {};
+  let x = "";
+  for (const [k, v] of headers) {
+    // discard the host header
+    if (k === "host") continue;
+    // discard cloudflare-specific headers like cf-connecting-ip
+    if (k.indexOf("cf-") === 0) continue;
+    // discard "x-" custom headers like x-real-ip
+    if (k.indexOf("x-") === 0) continue;
+    // drop user-agent
+    if (k.indexOf("user-agent") === 0) continue;
+    out[k] = v;
+    x += k + ":" + v + ",";
+  }
+  if (cfg.debug) console.debug("essential headers", x);
+  return out;
+}
+
+function cfCacheDirectives(ttl, all = true) {
+  // cacheEverything is needed because otherwise Cloudflare
+  // does not cache .txt files, but does cache .apk
+  // and content-type doesn't matter reg what it caches
+  // developers.cloudflare.com/cache/about/default-cache-behavior
+  // note: cacheTtlByStatus is enterprise-only, but cacheEverything
+  // (supposedly) does not cache 5xx and 4xx responses
+  return { cacheTtl: ttl, cacheEverything: all };
 }
 
 // github/serverless-dns/serverless-dns/blob/33b88dba/src/commons/util.js#L309
