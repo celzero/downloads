@@ -10,8 +10,11 @@ import * as modup from "./update.js";
 import * as moddown from "./download.js";
 import * as modcorsopts from "./cors-opts.js";
 import * as modres from "./res.js";
+import * as cfg from "./cfg.js";
 
 async function handleRequest(request, env) {
+  if (cfg.debug) modres.pprintreq(request);
+
   // handle preflight requests
   // developers.cloudflare.com/workers/examples/cors-header-proxy
   if (request.method === "OPTIONS") {

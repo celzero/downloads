@@ -87,6 +87,24 @@ export function allowCors(h) {
   h.append("Vary", "Origin");
 }
 
+function pprintres(res) {
+  if (!res) return console.warn("res empty");
+  const u = res.url;
+  const s = res.status;
+  const t = res.statusText;
+  let h = "";
+  for (const [k, v] of res.headers) h += k + ":" + v + ",";
+  console.debug("res:", s, t, "url", u, "headers", h);
+}
+
+export function pprintreq(req) {
+  const m = req.method;
+  const u = req.url;
+  let h = "";
+  for (const [k, v] of req.headers) h += k + ":" + v + ",";
+  console.debug("req:", m, "url", u, "headers", h);
+}
+
 export function responseOkay(r) {
   if (!r) return false; // no res
   if (r.ok) return true; // 2xx

@@ -10,6 +10,9 @@ import { bareTimestampFrom } from "./timestamp.js";
 // es-lint-file-ignore
 import trieconfig from "./u6-basicconfig.json" assert { type: "json" };
 
+// debug logs
+export debug = false;
+
 // use r2 with its http url or r2 bindings?
 export const r2Http = true;
 // no double forward-slash // unlike http
