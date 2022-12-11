@@ -11,7 +11,7 @@ import { bareTimestampFrom } from "./timestamp.js";
 import trieconfig from "./u6-basicconfig.json" assert { type: "json" };
 
 // debug logs
-export debug = false;
+export const debug = false;
 
 // use r2 with its http url or r2 bindings?
 export const r2Http = true;
