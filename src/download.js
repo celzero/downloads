@@ -30,7 +30,7 @@ export async function handleDownloadRequest(env, request) {
   );
 
   const res1 = await doDownload(url, ttl, reqheaders, env.R2_RDNS);
-  if (!res1 || !res1.ok) {
+  if (!modres.responseOkay(res1)) {
     console.warn(filename, "download for", url, "failed", contentType);
     return modres.response502;
   }
@@ -41,6 +41,7 @@ export async function handleDownloadRequest(env, request) {
   // Web/API/Streams_API/Using_readable_streams#attaching_a_reader
   const body = modres.asStream(res1, streamType);
   if (body) {
+    // 2xx
     // do not await on res1! see #2 above
     const res2 = new Response(body, res1);
     // TODO: remove aws headers
@@ -57,8 +58,9 @@ export async function handleDownloadRequest(env, request) {
     return res2;
   }
 
-  console.warn("download for", url, "failed, no body w res", res1);
-  return modres.response503;
+  // non-2xx
+  console.log("download for", url, "no body w res", res1.status);
+  return res1;
 }
 
 function determineArtifact(params, path, env) {

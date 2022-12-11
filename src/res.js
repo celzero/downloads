@@ -86,3 +86,11 @@ export function allowCors(h) {
   h.set("Access-Control-Allow-Origin", "*");
   h.append("Vary", "Origin");
 }
+
+export function responseOkay(r) {
+  if (!r) return false; // no res
+  if (r.ok) return true; // 2xx
+  if (r.status >= 300 && r.status < 399) return true;
+  pprintres(r);
+  return false;
+}
