@@ -20,7 +20,7 @@ export const r2proto = "r2:";
 
 // github.com/serverless-dns/trie/blob/4032130d6/src/codec.js
 // even though these aren't equal to the ones defined in trie/codec.js
-// (aka b6 = 6 / b8 = 8)they denote the same thing (ie, the same codec).
+// (aka b6 = 6 / b8 = 8) they denote the same thing (ie, the same codec).
 export const u6 = "u6";
 export const u8 = "u8";
 
@@ -30,9 +30,10 @@ export const testBlocklistsDir = "testblocklists";
 // unused for now
 // the last version code beyond which new blocklists won't be delivered
 export const lastLegacyBlocklistVcode = 22; // v053k
-// the last legacy timestamp, 16 Nov 2022
-// unused since legacy blocklists are supported for a longer period now
-export const latestLegacyTimestamp = 1668635781244; // unused
+// last legacy blocklist version (without discards for wildcard entries)
+// ie, blocklists generated after 16 Jan 2023 only persist wildcard entries;
+// and apps below lastLegacyBlocklistVcode do not support it
+export const latestLegacyTimestamp = 1673214982927; // 8 Jan 2023
 
 // blocklists below this version are on s3, the rest on r2
 export const lastVersionOnS3 = 1666666666666; // 25 Oct 2022
