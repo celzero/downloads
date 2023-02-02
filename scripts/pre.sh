@@ -20,7 +20,7 @@ wk=$(((day + 7 - 1) / 7))
 yyyy=`date -d @$now "+%Y"`
 # month
 mm=`date -d @$now "+%m"`
-// 01 => 1, 08 => 8, etc;
+# 01 => 1, 08 => 8, etc;
 mm=${mm#0}
 
 # stackoverflow.com/a/1445507
