@@ -247,6 +247,7 @@ async function info(id, token) {
 }
 
 function conf(data) {
+  // uid here is its json representation
   const { uid, config } = data;
   if (!config || !uid) {
     console.log(data);
@@ -254,7 +255,7 @@ function conf(data) {
   }
   return `[Interface]
 # PrivateKey =
-PublicKey = ${uid.pubkey}
+PublicKey = ${uid.key}
 Address = ${config.interface.addresses.v4}
 Address = ${config.interface.addresses.v6}
 DNS = 1.1.1.1
@@ -263,7 +264,6 @@ PublicKey = ${config.peers[0].public_key}
 Endpoint = ${config.peers[0].endpoint.v4}
 Endpoint = ${config.peers[0].endpoint.v6}
 Endpoint = ${config.peers[0].endpoint.host}
-Port = ${config.peers[0].endpoint.port}
 AllowedIPs = 0.0.0.0/0
 AllowedIPs = ::/0
 `;
