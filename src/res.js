@@ -7,6 +7,7 @@
  */
 
 export const jsonHeaders = { "content-type": "application/json;charset=UTF-8" };
+export const txtHeaders = { "content-type": "text/plain;charset=UTF-8" };
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
@@ -29,6 +30,10 @@ export const response503 = new Response(null, { status: 503 });
 export function mkJsonResponse(j) {
   const rj = JSON.stringify(j, /* replacer*/ null, /* space*/ 2);
   return new Response(rj, { headers: jsonHeaders });
+}
+
+export function mkTxtResponse(txt) {
+  return new Response(txt, { headers: txtHeaders });
 }
 
 /**

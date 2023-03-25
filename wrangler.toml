@@ -9,6 +9,7 @@ routes = [
 usage_model = "unbound"
 compatibility_date = "2022-06-21"
 workers_dev = true
+compatibility_flags = [ "nodejs_compat" ]
 
 [[r2_buckets]]
 binding = 'R2_RDNS'
@@ -20,3 +21,4 @@ LATEST_VCODE = "27"
 GEOIP_TSTAMP = "1667349639157"
 STORE_URL = "https://dist.rethinkdns.com/"
 R2_STORE_URL = "https://cfstore.rethinkdns.com/"
+WARP_ACTIVE = "true"

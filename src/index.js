@@ -8,6 +8,7 @@
 
 import * as modup from "./update.js";
 import * as moddown from "./download.js";
+import * as modwarp from "./warp.js";
 import * as modcorsopts from "./cors-opts.js";
 import * as modres from "./res.js";
 import * as cfg from "./cfg.js";
@@ -26,6 +27,8 @@ async function handleRequest(request, env) {
   const r = new URL(request.url);
   if (r.pathname.startsWith("/update")) {
     return modup.handleUpdateRequest(env, request);
+  } else if (r.pathname.startsWith("/warp")) {
+    return modwarp.handleWarpRequest(env, request);
   } else {
     return moddown.handleDownloadRequest(env, request);
   }
