@@ -23,6 +23,9 @@ mm=`date -d @$now "+%m"`
 # 01 => 1, 08 => 8, etc;
 mm=${mm#0}
 
+# wget opts: superuser.com/a/689340
+wgetopts="--tries=3 --retry-on-http-error=404 --waitretry=3 --no-dns-cache"
+
 # stackoverflow.com/a/1445507
 max=4
 # 0..4 (5 loops)
@@ -38,7 +41,7 @@ do
     else
         # versioning scheme:
         # github.com/serverless-dns/blocklists/blob/6d13b104e1/src/ver.js#L19
-        wget "${burl}/${yyyy}/${dir}/${mm}-${wk}/${codec}/${f}" -O "${out}"
+        wget $wgetopts "${burl}/${yyyy}/${dir}/${mm}-${wk}/${codec}/${f}" -O "${out}"
         wcode=$?
 
         if [ $wcode -eq 0 ]; then
