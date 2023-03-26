@@ -93,19 +93,15 @@ function genString(length) {
  * @param {UserId} uid
  */
 async function register(uid) {
-  const res = await fetch(
-    "https://api.cloudflareclient.com/v0a977/reg",
-    {
-      headers: {
-        "User-Agent": "okhttp/3.12.1",
-        "Content-Type": "application/json; charset=UTF-8",
-      },
-      method: "POST",
-      cache: "no-cache",
-      body: JSON.stringify(uid.json()),
+  const res = await fetch("https://api.cloudflareclient.com/v0a977/reg", {
+    headers: {
+      "User-Agent": "okhttp/3.12.1",
+      "Content-Type": "application/json; charset=UTF-8",
     },
-    JSON.stringify(uid.json())
-  );
+    method: "POST",
+    cache: "no-cache",
+    body: JSON.stringify(uid.json()),
+  });
 
   /**
 {
@@ -240,7 +236,7 @@ async function info(id, token) {
     "type": "Android",
     "locale": "en_US"
   },
-  "wgconf": "[Interface]\n# PrivateKey =\nPublicKey = undefined\nAddress = 172.16.0.2\nAddress = 2606:4700:110:881d:ccfb:47bd:7a97:73cb\nDNS = 1.1.1.1\n[Peer]\nPublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=\nEndpoint = 162.159.192.8:0\nEndpoint = [2606:4700:d0::a29f:c008]:0\nEndpoint = engage.cloudflareclient.com:2408\nPort = undefined\nAllowedIPs = 0.0.0.0/0\nAllowedIPs = ::/0\n"
+  "wgconf": "[Interface]\n# PrivateKey =\nPublicKey = DAVemWOQZBonokPo7H1jiM61STpRUNYv0N0q27Uztgg=\nAddress = 172.16.0.2\nAddress = 2606:4700:110:881d:ccfb:47bd:7a97:73cb\nDNS = 1.1.1.1\n[Peer]\nPublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=\nEndpoint = 162.159.192.8:0\nEndpoint = [2606:4700:d0::a29f:c008]:0\nEndpoint = engage.cloudflareclient.com:2408\nAllowedIPs = 0.0.0.0/0\nAllowedIPs = ::/0\n"
 }
   */
   return await res.json();
