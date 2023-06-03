@@ -252,7 +252,6 @@ function conf(data) {
     throw new Error("config or uid missing");
   }
   return `[Interface]
-# PrivateKey =
 PublicKey = ${uid.key}
 Address = ${config.interface.addresses.v4}
 Address = ${config.interface.addresses.v6}
