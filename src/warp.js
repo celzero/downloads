@@ -99,7 +99,8 @@ async function register(uid) {
       "Content-Type": "application/json; charset=UTF-8",
     },
     method: "POST",
-    cache: "no-cache",
+    // github.com/cloudflare/workerd/issues/698
+    // cache: "no-cache",
     body: JSON.stringify(uid.json()),
   });
 
@@ -169,7 +170,8 @@ async function info(id, token) {
       "Authorization": `Bearer ${token}`,
     },
     method: "GET",
-    cache: "no-cache",
+    // github.com/cloudflare/workerd/issues/698
+    // cache: "no-cache",
   });
   /*
 {
