@@ -81,6 +81,7 @@ function determineArtifact(params, path, env) {
   let ttl = appTtlSec;
 
   if (type === "unknown" || type === "unk") {
+    console.warn("unknown intent; r400", url);
     // nulls
     return [url, filename, ttl];
   } else if (type === "geoip") {
@@ -296,7 +297,7 @@ function determineIntent(params, path, env) {
     // if path isn't empty, then we don't know how to serve it.
     type = "unknown";
   } else {
-    console.warn("intent: path not set, assume defaults", path);
+    console.warn("intent: path not set, assume defaults", type, p1, path);
     // return the default contentType/version/type
     return [type, version, codec, clientvcode, contentType, test];
   }
