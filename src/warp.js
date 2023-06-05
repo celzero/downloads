@@ -8,6 +8,7 @@
 
 import * as modres from "./res.js";
 import * as modcf from "./cf.js";
+import * as cfg from "./cfg.js";
 
 // from: github.com/maple3142/cf-warp/blob/a9ca3094/cli.js#L1
 
@@ -17,17 +18,21 @@ export function handleWarpRequest(env, request) {
   const path = r.pathname;
   const params = r.searchParams;
 
-  if (path === "/warp/works") {
-    const wa = env.WARP_ACTIVE || "Unavailable";
-    const works = wa !== "true";
-    const r = { works: works, reason: wa };
-    return modres.mkJsonResponse(r);
-  } else if (path === "/warp/new") {
-    return make(params, modcf.infoStrWithDate(request));
-  } else if (path === "/warp/renew") {
-    // todo: implement
-  } else if (path === "/warp/quota") {
-    return quota(params);
+  try {
+    if (path === "/warp/works") {
+      const wa = env.WARP_ACTIVE || "Unavailable";
+      const works = wa !== "true";
+      const r = { works: works, reason: wa };
+      return modres.mkJsonResponse(r);
+    } else if (path === "/warp/new") {
+      return make(params, modcf.infoStrWithDate(request));
+    } else if (path === "/warp/renew") {
+      // todo: implement
+    } else if (path === "/warp/quota") {
+      return quota(params);
+    }
+  } catch (err) {
+    console.error(err);
   }
 
   return modres.response400;
@@ -47,7 +52,7 @@ async function make(params, client) {
   const all = Object.assign({}, cfdata, cfdata2);
   all.uid = uid.json();
   all.wgconf = conf(all);
-  console.log(all);
+  if (cfg.debug) console.log(all);
   return modres.mkJsonResponse(all);
 }
 
@@ -250,7 +255,7 @@ function conf(data) {
   // uid here is its json representation
   const { uid, config } = data;
   if (!config || !uid) {
-    console.log(data);
+    if (cfg.debug) console.log(data);
     throw new Error("config or uid missing");
   }
   return `[Interface]
