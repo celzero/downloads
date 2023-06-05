@@ -34,7 +34,7 @@ export async function handleDownloadRequest(env, request) {
   const res1 = await doDownload(url, ttl, reqheaders, env.R2_RDNS);
   if (!modres.responseOkay(res1)) {
     console.warn(filename, "download for", url, "failed", contentType);
-    return modres.response502;
+    return res1;
   }
 
   // 1. Make the headers mutable by re-constructing the Response
@@ -331,7 +331,7 @@ async function doDownload(url, ttl, clientheaders, r2bucket) {
       headers: essentialHeaders(clientheaders),
       cf: cfCacheDirectives(ttl),
     });
-    return await fetch(r2req);
+    return fetch(r2req);
   } else {
     console.warn("do-download: unsupported proto", url);
     return null;
