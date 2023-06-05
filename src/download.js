@@ -29,6 +29,8 @@ export async function handleDownloadRequest(env, request) {
     env
   );
 
+  if (!url) return modres.response400;
+
   const res1 = await doDownload(url, ttl, reqheaders, env.R2_RDNS);
   if (!modres.responseOkay(res1)) {
     console.warn(filename, "download for", url, "failed", contentType);
@@ -64,7 +66,7 @@ export async function handleDownloadRequest(env, request) {
 }
 
 function determineArtifact(params, path, env) {
-  // type = ["geoip", "app", "blocklists", "basicconfig", "rank", trie"]
+  // type = ["unk", "geoip", "app", "blocklists", "basicconfig", "rank", trie"]
   // version = timestampMs, or yyyy/timestampMs, or a number (vcode)
   // codec = "u8" or "u6"
   // contentType = "json", "blob", "compressable-blob"
@@ -78,7 +80,10 @@ function determineArtifact(params, path, env) {
   let filename = null;
   let ttl = appTtlSec;
 
-  if (type === "geoip") {
+  if (type === "unknown" || type === "unk") {
+    // nulls
+    return [url, filename, ttl];
+  } else if (type === "geoip") {
     // blob or compressable-blob
     const v6 = params.has("v6");
     // also: const v4 = params.has("v4");
@@ -247,10 +252,16 @@ function determineIntent(params, path, env) {
   // test is false by default
   const test = determineIfTest(params);
 
-  if (!path || path.length <= 0) {
-    console.info("intent: undetermined type/version; zero path");
-    // return the default type/version/contentType
+  if (!path || path.length <= 0 || path === "/") {
+    console.info("intent: missing type/version/path; app download");
+    // root "/" path is app download
+    // return the default version/contentType
     return [type, version, codec, clientvcode, contentType, test];
+  } else {
+    // if path exists, do not assume app download. Example:
+    // in cases where a browser sends favico.ico request, we needn't
+    // trigger an app download (which is >50MB).
+    type = "unknown";
   }
 
   const paths = path.split("/");
@@ -281,9 +292,12 @@ function determineIntent(params, path, env) {
     // ignore p2
     type = p1;
     version = fullTimestampFrom(p2, cfg.latestTimestamp());
+  } else if (p1) {
+    // if path isn't empty, then we don't know how to serve it.
+    type = "unknown";
   } else {
-    console.warn("intent: unknown; path not set", path);
-    // return the default contentType/type/version
+    console.warn("intent: path not set, assume defaults", path);
+    // return the default contentType/version/type
     return [type, version, codec, clientvcode, contentType, test];
   }
 
