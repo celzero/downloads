@@ -18,7 +18,9 @@ export function handleWarpRequest(env, request) {
   const params = r.searchParams;
 
   if (path === "/warp/works") {
-    const r = { works: env.WARP_ACTIVE };
+    const wa = env.WARP_ACTIVE || "Unavailable";
+    const works = wa !== "true";
+    const r = { works: works, reason: wa };
     return modres.mkJsonResponse(r);
   } else if (path === "/warp/new") {
     return make(params, modcf.infoStrWithDate(request));
