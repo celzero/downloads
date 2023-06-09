@@ -12,7 +12,7 @@ import * as cfg from "./cfg.js";
 
 // from: github.com/maple3142/cf-warp/blob/a9ca3094/cli.js#L1
 
-export function handleWarpRequest(env, request) {
+export async function handleWarpRequest(env, request) {
   const r = new URL(request.url);
 
   const path = r.pathname;
@@ -25,11 +25,11 @@ export function handleWarpRequest(env, request) {
       const r = { works: works, reason: wa };
       return modres.mkJsonResponse(r);
     } else if (path === "/warp/new") {
-      return make(params, modcf.infoStrWithDate(request));
+      return await make(params, modcf.infoStrWithDate(request));
     } else if (path === "/warp/renew") {
       // todo: implement
     } else if (path === "/warp/quota") {
-      return quota(params);
+      return await quota(params);
     }
   } catch (err) {
     console.error(err);
