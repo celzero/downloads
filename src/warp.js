@@ -11,6 +11,7 @@ import * as modcf from "./cf.js";
 import * as cfg from "./cfg.js";
 
 // from: github.com/maple3142/cf-warp/blob/a9ca3094/cli.js#L1
+// ref: github.com/k4yt3x/wgcf/blob/fc82ee5f/openapi-spec.json
 
 export async function handleWarpRequest(env, request) {
   const r = new URL(request.url);
@@ -163,6 +164,7 @@ OR
   const ans = await res.json();
 
   if (ans.id) {
+    console.info("registration successful:", ans.id, ans.key);
     return ans;
   } else {
     console.error(ans, uid.json());
