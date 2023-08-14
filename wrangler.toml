@@ -7,7 +7,7 @@ routes = [
   "download.bravedns.com/*"
 ]
 usage_model = "unbound"
-compatibility_date = "2022-06-21"
+compatibility_date = "2023-06-19"
 workers_dev = true
 compatibility_flags = [ "nodejs_compat" ]
 
