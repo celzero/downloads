@@ -74,8 +74,8 @@ function decode(uricomponent) {
 
 function mkuser(params) {
   const pubkey = decode(params.get("pubkey"));
-  const referrer = decode(params.get("referrer"));
-  const device = decode(params.get("device"));
+  const referrer = decode(params.get("id")) || decode(params.get("referrer"));
+  const device = decode(params.get("device")) || decode(params.get("model"));
   const locale = decode(params.get("locale"));
   if (pubkey || referrer) {
     return new UserId(pubkey, referrer, device, locale);
