@@ -26,11 +26,11 @@ export async function handleWarpRequest(env, request) {
       const r = { works: works, reason: wa };
       return modres.mkJsonResponse(r);
     } else if (path === "/warp/new") {
-      return await make(params, modcf.infoStrWithDate(request));
+      return make(params, modcf.infoStrWithDate(request));
     } else if (path === "/warp/renew") {
-      // todo: implement
+      return renew(params);
     } else if (path === "/warp/quota") {
-      return await quota(params);
+      return quota(params);
     }
   } catch (err) {
     console.error(err);
@@ -49,12 +49,18 @@ async function make(params, client) {
 
   const uid = mkuser(params);
   const cfdata = await register(uid);
+  await refer(makefakeuser(cfdata));
   const cfdata2 = await info(cfdata.id, cfdata.token);
   const all = Object.assign({}, cfdata, cfdata2);
   all.uid = uid.json();
   all.wgconf = conf(all);
   if (cfg.debug) console.log(all);
   return modres.mkJsonResponse(all);
+}
+
+async function renew(params) {
+  const fakeuid = mkuser(params);
+  await refer(fakeuid);
 }
 
 function decode(uricomponent) {
@@ -70,10 +76,10 @@ function mkuser(params) {
   const referrer = decode(params.get("referrer"));
   const device = decode(params.get("device"));
   const locale = decode(params.get("locale"));
-  if (pubkey) {
+  if (pubkey || referrer) {
     return new UserId(pubkey, referrer, device, locale);
   } else {
-    throw new Error("cannot register, public key missing");
+    throw new Error("cannot register, key/referrer missing");
     /*
     const b = crypto.getRandomValues(new Uint8Array(32)));
     b[0] &= 248;
@@ -84,6 +90,14 @@ function mkuser(params) {
     return {privateKey: k};
     */
   }
+}
+
+/**
+ * @param {any} cfdata
+ * @returns {UserId} uid
+ */
+function makefakeuser(cfdata) {
+  return new UserId("", cfdata.id, cfdata.model, cfdata.locale);
 }
 
 function genString(length) {
@@ -170,6 +184,13 @@ OR
     console.error(ans, uid.json());
     throw new Error("registration failed: " + ans.errors[0].message);
   }
+}
+
+/**
+ * @param {UserId} fakeuid
+ */
+async function refer(fakeuid) {
+  return await register(fakeuid);
 }
 
 async function info(id, token) {
@@ -289,7 +310,13 @@ async function quota(params) {
 
 class UserId {
   constructor(pubkey, referrer, device, locale) {
-    this.pubkey = pubkey;
+    if (!pubkey && !referrer) {
+      throw new Error("set pubkey or referrer");
+    }
+    // if pubkey is empty, generate a random one;
+    // such random id is usually used to increase
+    // current referring user's quota by 1GB?
+    this.pubkey = pubkey || `${genString(43)}=`;
     this.referrer = referrer || "";
     this.install = genString(11);
     this.fcm = `${this.install}:APA91b${genString(134)}`;
