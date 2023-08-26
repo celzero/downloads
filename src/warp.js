@@ -61,6 +61,7 @@ async function make(params, client) {
 async function renew(params) {
   const fakeuid = mkuser(params);
   await refer(fakeuid);
+  return quota(params);
 }
 
 function decode(uricomponent) {
@@ -113,6 +114,7 @@ function genString(length) {
 
 /**
  * @param {UserId} uid
+ * @return {any} cfdata
  */
 async function register(uid) {
   const res = await fetch("https://api.cloudflareclient.com/v0a977/reg", {
@@ -188,6 +190,7 @@ OR
 
 /**
  * @param {UserId} fakeuid
+ * @return {any} cfdata
  */
 async function refer(fakeuid) {
   return await register(fakeuid);
@@ -300,9 +303,27 @@ AllowedIPs = ::/0
  * @param {URLSearchParams} params
  */
 async function quota(params) {
-  const id = params.get("id");
+  const id = params.get("id") || params.get("referrer");
+  if (!id) {
+    modres.mkTxtResponse("id or referrer missing", 400);
+  }
   const token = params.get("token");
   const j = await info(id, token);
+  /**
+   * account: {
+   * "id": "66e376b2-e3cd-4887-8c1f-2bac03c61e25",
+   * "account_type": "limited",
+   * "created": "2022-08-22T11:21:00.853895Z",
+   * "updated": "2022-08-22T11:21:00.853895Z",
+   * "premium_data": 3000000000,
+   * "quota": 3000000000,
+   * "warp_plus": true,
+   * "referral_count": 3,
+   * "referral_renewal_countdown": 0,
+   * "role": "child",
+   * "license": "5oo59OD1-61E7Loxm-Q4t32B1I"
+   * }
+   */
   return modres.mkJsonResponse(j.account);
 }
 

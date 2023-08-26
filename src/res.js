@@ -32,8 +32,8 @@ export function mkJsonResponse(j) {
   return new Response(rj, { headers: jsonHeaders });
 }
 
-export function mkTxtResponse(txt) {
-  return new Response(txt, { headers: txtHeaders });
+export function mkTxtResponse(txt, code = 200) {
+  return new Response(txt, { headers: txtHeaders, status: code });
 }
 
 /**
