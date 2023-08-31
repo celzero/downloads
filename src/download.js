@@ -33,6 +33,15 @@ export async function handleDownloadRequest(env, request) {
 
   const res1 = await doDownload(url, ttl, reqheaders, env.R2_RDNS);
   if (!modres.responseOkay(res1)) {
+    // example:
+    //   (debug) res: 412 Precondition Failed
+    //           url cfstore.rethinkdns.com/blocklists/2023/1692914162974/u8/rd.txt
+    //           headers age:118332,cf-cache-status:HIT,connection:keep-alive,content-type:text/html,
+    //           server:cloudflare,strict-transport-security:max-age=31536000;
+    //           includeSubDomains,transfer-encoding:chunked,vary:Accept-Encoding,
+    //
+    //    (warn) rank.bin download for cfstore.rethinkdns.com/blocklists/2023/1692914162974/u8/rd.txt
+    //           failed compressable-blob
     console.warn(filename, "download for", url, "failed", contentType);
     return res1;
   }
