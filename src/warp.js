@@ -26,11 +26,12 @@ export async function handleWarpRequest(env, request) {
       const r = { works: works, reason: wa };
       return modres.mkJsonResponse(r);
     } else if (path === "/warp/new") {
-      return make(params, modcf.infoStrWithDate(request));
+      // await to capture exceptions
+      return await make(params, modcf.infoStrWithDate(request));
     } else if (path === "/warp/renew") {
-      return renew(params);
+      return await renew(params);
     } else if (path === "/warp/quota") {
-      return quota(params);
+      return await quota(params);
     }
   } catch (err) {
     console.error(err);
