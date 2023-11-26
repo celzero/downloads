@@ -1,6 +1,6 @@
 name: ⛅ CF
 on:
-  schedule:
+  # schedule:
     # why? github.com/serverless-dns/blocklists/blob/fe92d9b/.github/workflows/createUploadBlocklistFilter.yml#L5
     # at 1:53 on 2nd, 9th, 17th, 25th of every month
     # disabled until cloudflare account is up and running
