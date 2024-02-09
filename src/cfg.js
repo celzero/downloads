@@ -14,9 +14,12 @@ import trieconfig from "./u6-basicconfig.json" assert { type: "json" };
 export const debug = false;
 
 // use r2 with its http url or r2 bindings?
-export const r2Http = true;
+export let r2Http = true;
 // no double forward-slash // unlike http
 export const r2proto = "r2:";
+
+// are we running on Workers or Snippets?
+export let possiblySnippets = false;
 
 // github.com/serverless-dns/trie/blob/4032130d6/src/codec.js
 // even though these aren't equal to the ones defined in trie/codec.js

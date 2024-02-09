@@ -18,16 +18,19 @@ export async function handleWarpRequest(env, request) {
 
   const path = r.pathname;
   const params = r.searchParams;
+  const cinfo = modcf.infoStrWithDate(request);
 
   try {
     if (path === "/warp/works") {
       const wa = env.WARP_ACTIVE || "Unavailable";
       const works = wa === "true";
-      const r = { works: works, reason: wa };
+      const who = cfg.possiblySnippets ? "Snippets" : "Workers";
+      const r = { works: works, reason: wa, who: who, c: cinfo };
       return modres.mkJsonResponse(r);
     } else if (path === "/warp/new") {
       // await to capture exceptions
-      return await make(params, modcf.infoStrWithDate(request));
+      // throws exception on pubkey reuse
+      return await make(params, cinfo);
     } else if (path === "/warp/renew") {
       return await renew(params);
     } else if (path === "/warp/quota") {
