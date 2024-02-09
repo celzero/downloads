@@ -251,7 +251,7 @@ function determineStoreUrl(env, version, codec, test = false) {
 
 function determineIntent(params, path, env) {
   // defaults
-  let type = "app";
+  let type = "unk";
   let version = env.LATEST_VCODE;
   // use built-in http compression as br / gz
   let contentType = "blob";
@@ -296,8 +296,7 @@ function determineIntent(params, path, env) {
     p1 === "blocklists" ||
     p1 === "trie" ||
     p1 === "rank" ||
-    p1 === "basicconfig" ||
-    p1 === "bloom"
+    p1 === "basicconfig"
   ) {
     // ignore p2
     type = p1;
