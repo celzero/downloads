@@ -38,6 +38,7 @@ export async function handleWarpRequest(env, request) {
     }
   } catch (err) {
     console.error(err);
+    return modres.mkTxtResponse(err.message, 501);
   }
 
   return modres.response400;
