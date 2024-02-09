@@ -321,7 +321,7 @@ AllowedIPs = ::/0
 async function quota(params) {
   const id = params.get("id") || params.get("referrer");
   if (!id) {
-    modres.mkTxtResponse("id or referrer missing", 400);
+    return modres.mkTxtResponse("id or referrer missing", 400);
   }
   const token = params.get("token");
   const j = await info(id, token);
