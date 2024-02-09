@@ -57,3 +57,32 @@ export function latestTimestamp() {
   const t = bareTimestampFrom(trieconfig.timestamp, fallbackTimestamp);
   return (t > fallbackTimestamp) ? t : fallbackTimestamp;
 }
+
+
+export function wrap(env) {
+  let cenv = {};
+  if (env == null) {
+    if (debug) console.debug("env is null");
+  } else if (typeof env !== "object") {
+    if (debug) console.debug("env is not an object");
+  } else {
+    // no-op
+    if (debug) console.debug("copy env");
+    cenv = Object.assign({}, env);
+  }
+
+  // values from 25 Nov 2023
+  if (cenv.WRAP_ACTIVE == null) cenv.WRAP_ACTIVE = "true";
+  if (cenv.LATEST_VCODE == null) cenv.LATEST_VCODE = "32";
+  if (cenv.GEOIP_TSTAMP == null) cenv.GEOIP_TSTAMP = "1667349639157";
+  if (cenv.STORE_URL == null) cenv.STORE_URL = "https://dist.rethinkdns.com/";
+  if (cenv.R2_STORE_URL == null) cenv.R2_STORE_URL = "https://cfstore.rethinkdns.com/";
+
+  if (cenv.R2_DNS == null) {
+    cenv.R2_DNS = null; // may be undefined
+    r2Http = true; // always true when env/r2 bindings are not available
+    possiblySnippets = true; // env is always missing on snippets (alpha)
+  }
+
+  return cenv;
+}

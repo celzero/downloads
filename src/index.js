@@ -13,8 +13,14 @@ import * as modcorsopts from "./cors-opts.js";
 import * as modres from "./res.js";
 import * as cfg from "./cfg.js";
 
+/**
+ * @param {Request} request
+ * @param {any} env
+ * @returns {Promise<Response>}
+ */
 async function handleRequest(request, env) {
   if (cfg.debug) modres.pprintreq(request);
+  if (cfg.debug) console.debug("env:", env); // env is empty {} on Snippets
 
   // handle preflight requests
   // developers.cloudflare.com/workers/examples/cors-header-proxy
@@ -24,13 +30,14 @@ async function handleRequest(request, env) {
 
   if (!modcorsopts.allowMethod(request.method)) return modres.response405;
 
+  const cenv = cfg.wrap(env);
   const r = new URL(request.url);
   if (r.pathname.startsWith("/update")) {
-    return modup.handleUpdateRequest(env, request);
+    return modup.handleUpdateRequest(cenv, request);
   } else if (r.pathname.startsWith("/warp")) {
-    return modwarp.handleWarpRequest(env, request);
+    return modwarp.handleWarpRequest(cenv, request);
   } else {
-    return moddown.handleDownloadRequest(env, request);
+    return moddown.handleDownloadRequest(cenv, request);
   }
 }
 
