@@ -193,7 +193,14 @@ OR
     return ans;
   } else {
     console.error(ans, uid.json());
-    throw new Error("registration failed: " + ans.errors[0].message);
+    const msgsep = "; ";
+    let errmsg = "registration failed";
+    if (ans.errors != null) {
+      for (const e of ans.errors) {
+        errmsg = errmsg + msgsep + e.message;
+      }
+    }
+    throw new Error(errmsg);
   }
 }
 
