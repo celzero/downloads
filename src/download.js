@@ -320,7 +320,7 @@ async function doDownload(url, ttl, clientheaders, r2bucket) {
   // TODO: translate client-headers like 'Range' to r2 api as approp
   // eslint-disable-next-line max-len
   // github.com/lukeed/worktop/pull/167/files#diff-ab7f34300953228afdbf6ba7326c3ae47ae1bab76b51a4f75539910cb334abd9R162-R182
-  if (url && url.startsWith(cfg.r2proto)) {
+  if (url && url.startsWith(cfg.r2proto) && r2bucket != null) {
     // slice out the prefix r2: from url
     const key = url.slice(url.indexOf(":") + 1);
     // developers.cloudflare.com/r2/runtime-apis/#bucket-method-definitions
