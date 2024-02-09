@@ -1,5 +1,5 @@
 name = "dl"
-main = "src/index.js"
+main = "dist/worker.js"
 routes = [
   "dl.bravedns.com/*",
   "dl.rethinkdns.com/*",
