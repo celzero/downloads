@@ -54,8 +54,12 @@ async function make(params, client) {
 
   const uid = mkuser(params);
   const cfdata = await register(uid);
-  await refer(makefakeuser(cfdata));
-  const cfdata2 = await info(cfdata.id, cfdata.token);
+  let cfdata2 = {};
+  // only 1 subrequests allowed per snippet invocation
+  if (!cfg.possiblySnippets) {
+    await refer(makefakeuser(cfdata));
+    cfdata2 = await info(cfdata.id, cfdata.token);
+  }
   const all = Object.assign({}, cfdata, cfdata2);
   all.uid = uid.json();
   all.wgconf = conf(all);
