@@ -69,7 +69,11 @@ async function make(params, client) {
 
 async function renew(params) {
   const fakeuid = mkuser(params);
-  await refer(fakeuid);
+  if (cfg.debug) console.log("renew: ", fakeuid);
+  const j = await refer(fakeuid);
+  if (cfg.possiblySnippets) {
+    return modres.mkJsonResponse(j);
+  }
   return quota(params);
 }
 
@@ -123,7 +127,7 @@ function genString(length) {
 
 /**
  * @param {UserId} uid
- * @return {any} cfdata
+ * @return {JSON} cfdata
  */
 async function register(uid) {
   const res = await fetch("https://api.cloudflareclient.com/v0a977/reg", {
