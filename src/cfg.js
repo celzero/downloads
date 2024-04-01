@@ -73,7 +73,7 @@ export function wrap(env) {
 
   // values from 25 Nov 2023
   if (cenv.WRAP_ACTIVE == null) cenv.WRAP_ACTIVE = "true";
-  if (cenv.LATEST_VCODE == null) cenv.LATEST_VCODE = "32";
+  if (cenv.LATEST_VCODE == null) cenv.LATEST_VCODE = "35";
   if (cenv.GEOIP_TSTAMP == null) cenv.GEOIP_TSTAMP = "1667349639157";
   if (cenv.STORE_URL == null) cenv.STORE_URL = "https://dist.rethinkdns.com/";
   if (cenv.R2_STORE_URL == null) cenv.R2_STORE_URL = "https://cfstore.rethinkdns.com/";

@@ -12,7 +12,7 @@ export function echo(str) {
     echo: str,
   };
 
-  const resJson = JSON.stringify(res, /*replacer*/ null, /*space*/ 2);
+  const resJson = JSON.stringify(res, /* replacer*/ null, /* space*/ 2);
 
   return new Response(resJson, { headers: jsonHeader });
 }
@@ -23,7 +23,7 @@ export function err(reason) {
     error: reason + "",
   };
 
-  const resJson = JSON.stringify(res, /*replacer*/ null, /*space*/ 2);
+  const resJson = JSON.stringify(res, /* replacer*/ null, /* space*/ 2);
 
   return new Response(resJson, {
     headers: jsonHeader,
