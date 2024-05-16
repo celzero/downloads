@@ -11,6 +11,7 @@ compatibility_date = "2023-06-19"
 workers_dev = true
 compatibility_flags = [ "nodejs_compat" ]
 upload_source_maps = true
+send_metrics = false
 
 [[r2_buckets]]
 binding = 'R2_RDNS'
