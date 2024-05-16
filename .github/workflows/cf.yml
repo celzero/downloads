@@ -52,7 +52,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 🚚 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.GIT_REF }}
           fetch-depth: 0
@@ -74,7 +74,7 @@ jobs:
 
       - name: 📚 Publish
         # github.com/cloudflare/wrangler-action
-        uses: cloudflare/wrangler-action@2.0.0
+        uses: cloudflare/wrangler-action@3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           # input overrides env-defaults, regardless
