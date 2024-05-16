@@ -13,6 +13,10 @@ compatibility_flags = [ "nodejs_compat" ]
 upload_source_maps = true
 send_metrics = false
 
+[build]
+command = "npx webpack"
+cwd = "."
+
 [[r2_buckets]]
 binding = 'R2_RDNS'
 bucket_name = 'rdns'

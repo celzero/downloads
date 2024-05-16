@@ -24,11 +24,16 @@
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.3",
     "prettier": "^2.8.4",
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.56.0"
   },
   "lint-staged": {
     "*.js": "eslint --cache --fix",
     "*.ts": "prettier --write"
   },
-  "eslintIgnore": ["src/cfg.js"]
+  "eslintIgnore": [
+    "src/cfg.js"
+  ],
+  "dependencies": {
+    "webpack": "^5.91.0"
+  }
 }
