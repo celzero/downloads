@@ -68,10 +68,10 @@ export function wrap(env) {
   } else {
     // no-op
     if (debug) console.debug("copy env");
-    cenv = Object.assign({}, env);
+    cenv = env;
   }
 
-  // values from 25 Nov 2023
+  // values from 17 May 2023
   if (cenv.WRAP_ACTIVE == null) cenv.WRAP_ACTIVE = "true";
   if (cenv.LATEST_VCODE == null) cenv.LATEST_VCODE = "40";
   if (cenv.GEOIP_TSTAMP == null) cenv.GEOIP_TSTAMP = "1667349639157";
