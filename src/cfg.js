@@ -74,7 +74,7 @@ export function wrap(env) {
   if (debug) {
     const w = cenv.WARP_ACTIVE
     const v = cenv.LATEST_VCODE;
-    const r2 = cenv.R2_DNS == null;
+    const r2 = cenv.R2_RDNS != null;
     const cf = navigator && navigator.userAgent === "Cloudflare-Workers";
     console.debug("cfg: warp?", w, "vcode", v, "r2?", r2, "workers?", cf);
   }
@@ -86,9 +86,8 @@ export function wrap(env) {
   if (cenv.STORE_URL == null) cenv.STORE_URL = "https://dist.rethinkdns.com/";
   if (cenv.R2_STORE_URL == null) cenv.R2_STORE_URL = "https://cfstore.rethinkdns.com/";
 
-  if (cenv.R2_DNS == null) {
-    if (debug) console.log("cfg: possiblySnippets=true; why?", cenv.R2_DNS);
-    cenv.R2_DNS = null; // may be undefined
+  if (cenv.R2_RDNS == null) {
+    cenv.R2_RDNS = null; // may be undefined
     r2Http = true; // always true when env/r2 bindings are not available
     possiblySnippets = true; // env is always missing on snippets (alpha)
   }
