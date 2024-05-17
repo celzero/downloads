@@ -11,7 +11,7 @@ import { bareTimestampFrom } from "./timestamp.js";
 import trieconfig from "./u6-basicconfig.json" assert { type: "json" };
 
 // debug logs
-export const debug = false;
+export const debug = true;
 
 // use r2 with its http url or r2 bindings?
 export let r2Http = true;
@@ -69,6 +69,14 @@ export function wrap(env) {
     // no-op
     if (debug) console.debug("copy env");
     cenv = env;
+  }
+
+  if (debug) {
+    const w = cenv.WRAP_ACTIVE
+    const v = cenv.LATEST_VCODE;
+    const r2 = cenv.R2_DNS;
+    const cf = navigator && navigator.userAgent === "Cloudflare-Workers";
+    console.debug("cfg: warp?", w, "vcode", v, "r2?", r2 != null, "workers?", cf);
   }
 
   // values from 17 May 2023
