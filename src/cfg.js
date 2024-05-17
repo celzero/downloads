@@ -72,21 +72,22 @@ export function wrap(env) {
   }
 
   if (debug) {
-    const w = cenv.WRAP_ACTIVE
+    const w = cenv.WARP_ACTIVE
     const v = cenv.LATEST_VCODE;
-    const r2 = cenv.R2_DNS;
+    const r2 = cenv.R2_DNS == null;
     const cf = navigator && navigator.userAgent === "Cloudflare-Workers";
-    console.debug("cfg: warp?", w, "vcode", v, "r2?", r2 != null, "workers?", cf);
+    console.debug("cfg: warp?", w, "vcode", v, "r2?", r2, "workers?", cf);
   }
 
   // values from 17 May 2023
-  if (cenv.WRAP_ACTIVE == null) cenv.WRAP_ACTIVE = "true";
-  if (cenv.LATEST_VCODE == null) cenv.LATEST_VCODE = "40";
+  if (cenv.WARP_ACTIVE == null) cenv.WARP_ACTIVE = "true";
+  if (cenv.LATEST_VCODE == null) cenv.LATEST_VCODE = "41";
   if (cenv.GEOIP_TSTAMP == null) cenv.GEOIP_TSTAMP = "1667349639157";
   if (cenv.STORE_URL == null) cenv.STORE_URL = "https://dist.rethinkdns.com/";
   if (cenv.R2_STORE_URL == null) cenv.R2_STORE_URL = "https://cfstore.rethinkdns.com/";
 
   if (cenv.R2_DNS == null) {
+    if (debug) console.log("cfg: possiblySnippets=true; why?", cenv.R2_DNS);
     cenv.R2_DNS = null; // may be undefined
     r2Http = true; // always true when env/r2 bindings are not available
     possiblySnippets = true; // env is always missing on snippets (alpha)
