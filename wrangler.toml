@@ -1,11 +1,16 @@
 name = "dl"
 main = "dist/worker.js"
+
+# deveglopers.cloudflare.com/workers/configuration/routing/custom-domains
+# using custom domain as test for download.rethinkdns.com only
+# CNAME records, if any, for "custom domains" must be removed
 routes = [
   "dl.bravedns.com/*",
   "dl.rethinkdns.com/*",
-  "download.rethinkdns.com/*",
-  "download.bravedns.com/*"
+  "download.bravedns.com/*",
+  { pattern = "download.rethinkdns.com", custom_domain = true }
 ]
+
 usage_model = "unbound"
 compatibility_date = "2024-05-13"
 workers_dev = true
