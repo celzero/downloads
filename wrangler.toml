@@ -1,7 +1,7 @@
 name = "dl"
 main = "dist/worker.js"
 
-# deveglopers.cloudflare.com/workers/configuration/routing/custom-domains
+# developers.cloudflare.com/workers/configuration/routing/custom-domains
 # using custom domain as test for download.rethinkdns.com only
 # CNAME records, if any, for "custom domains" must be removed
 routes = [
