@@ -28,7 +28,7 @@ bucket_name = 'rdns'
 preview_bucket_name='z-test-rdns'
 
 [vars]
-LATEST_VCODE = "45"
+LATEST_VCODE = "47"
 GEOIP_TSTAMP = "1667349639157"
 STORE_URL = "https://dist.rethinkdns.com/"
 R2_STORE_URL = "https://cfstore.rethinkdns.com/"
