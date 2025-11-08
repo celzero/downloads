@@ -1,8 +1,7 @@
 name = "dl"
 main = "dist/worker.js"
 
-usage_model = "unbound"
-compatibility_date = "2025-11-17"
+compatibility_date = "2025-09-15"
 workers_dev = true
 compatibility_flags = [ "nodejs_compat" ]
 upload_source_maps = true
