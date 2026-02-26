@@ -11,8 +11,9 @@ import sys
 """
 Usage:
 Download ip-to-country csv db: db-ip.com/db/download/ip-to-country-lite
+ex: curl -O https://download.db-ip.com/free/dbip-country-lite-2026-02.csv.gz
 
-$ python dbip_shrink.py dbip-country-[date].csv.gz dbip
+$ python dbip_shrink.py dbip-country-lite-[yyyy-mm].csv.gz dbip
 Writes a packed binary file suitable for bisection search.
 
 Thanks to DB-IP.com for offering a suitable database under a CC-BY license.
@@ -20,7 +21,7 @@ Thanks to DB-IP.com for offering a suitable database under a CC-BY license.
 ref: github.com/Jigsaw-Code/Intra/blob/6c2e5ba/scripts/dbip_shrink.py
 """
 infile = gzip.open(sys.argv[1], mode='rt')
-out_prefix = sys.argv[2]
+out_prefix = sys.argv[2] if len(sys.argv) > 2 else "dbip"
 
 v4file = open(out_prefix + '.v4', 'wb')
 v6file = open(out_prefix + '.v6', 'wb')
