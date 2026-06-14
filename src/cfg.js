@@ -80,7 +80,7 @@ export function wrap(env) {
 
   // values from 27 Feb 2026
   if (cenv.WARP_ACTIVE == null) cenv.WARP_ACTIVE = "true";
-  if (cenv.LATEST_VCODE == null) cenv.LATEST_VCODE = "53";
+  if (cenv.LATEST_VCODE == null) cenv.LATEST_VCODE = "59";
   if (cenv.GEOIP_TSTAMP == null) cenv.GEOIP_TSTAMP = "1772137832624";
   if (cenv.STORE_URL == null) cenv.STORE_URL = "https://dist.rethinkdns.com/";
   if (cenv.R2_STORE_URL == null)
