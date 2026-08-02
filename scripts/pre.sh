@@ -23,8 +23,8 @@ mm=`date -d @$now "+%m"`
 # 01 => 1, 08 => 8, etc;
 mm=${mm#0}
 
-# curl opts: fail silently, show errors, follow redirects
-curlopts="-fsSL --retry 3 --retry-all-errors --retry-delay 3"
+# wget opts: superuser.com/a/689340
+wgetopts="--tries=3 --retry-on-http-error=404 --waitretry=3 --no-dns-cache"
 
 # stackoverflow.com/a/1445507
 max=4
@@ -41,15 +41,15 @@ do
     else
         # versioning scheme:
         # github.com/serverless-dns/blocklists/blob/6d13b104e1/src/ver.js#L19
-        curl $curlopts "${burl}/${yyyy}/${dir}/${mm}-${wk}/${codec}/${f}" -o "${out}"
+        wget $wgetopts "${burl}/${yyyy}/${dir}/${mm}-${wk}/${codec}/${f}" -O "${out}"
         wcode=$?
 
         if [ $wcode -eq 0 ]; then
             echo "pre.sh: $i ok $wcode"
             exit 0
         else
-            # curl may create empty files on errs
-            rm -f ${out}
+            # wget creates blank files on errs
+            rm ${out}
             echo "pre.sh: $i not ok $wcode"
         fi
     fi
