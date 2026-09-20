@@ -1,6 +1,6 @@
 #!/bin/sh
 
-burl="https://cfstore.rethinkdns.com/blocklists"
+burl="https://vol.rethinkdns.com/blocklists"
 dir="bc"
 codec="u6"
 f="basicconfig.json"
