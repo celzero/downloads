@@ -5,9 +5,9 @@
 # Copyright 2022 RethinkDNS and its authors
 # SPDX-License-Identifier: MPL-2.0
 
-import boto3
+import boto3 # type: ignore
 import os
-from botocore.client import Config
+from botocore.client import Config # type: ignore
 from datetime import datetime,timezone
 
 account_id = os.getenv('CF_ID')
@@ -33,7 +33,7 @@ path_asn64 = dirent + '/' + asn64
 
 # boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-uploading-files.html
 # boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.upload_file
-cl = boto3.client(
+cl = boto3.client( # type: ignore
     's3',
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key,
@@ -45,9 +45,9 @@ cl = boto3.client(
     ),
 )
 
-cl.upload_file(Bucket=bkt, Key=path_db4, Filename=db4)
-cl.upload_file(Bucket=bkt, Key=path_db6, Filename=db6)
-cl.upload_file(Bucket=bkt, Key=path_db6, Filename=asn64)
+cl.upload_file(Bucket=bkt, Key=path_db4, Filename=db4) # type: ignore
+cl.upload_file(Bucket=bkt, Key=path_db6, Filename=db6) # type: ignore
+cl.upload_file(Bucket=bkt, Key=path_db6, Filename=asn64) # type: ignore
 
 print("url:", endpoint, "ver:", tstamp)
 print("bkt:", bkt, "p:", dirent)
