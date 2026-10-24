@@ -47,7 +47,7 @@ export function asStream(res, typ) {
   if (!b) return null;
 
   if (typ === "stream-gz") {
-    return b.pipeThrough(new CompressionionStream("gzip"));
+    return b.pipeThrough(new CompressionStream("gzip"));
   } else if (typ === "stream-nogz") {
     return b.pipeThrough(new DecompressionStream("gzip"));
   }
